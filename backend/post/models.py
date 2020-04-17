@@ -7,4 +7,8 @@ class Post(models.Model):
     def __str__(self):
         """A string representation of the model."""
         return self.title
+
+class UploadFileModel(models.Model):
+	file = models.FileField(null=True)
+
 # Create your models here.

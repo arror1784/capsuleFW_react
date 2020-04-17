@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-//import MyName from './MyName';
-//import Counter from './Counter';
-//import FileUpload from './FileUpload';
 import axios from 'axios';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { Home, FileUpload, MaterialSelect, Status, PrintFinish } from './routes';
+import Test from './routes/Test';
+//import Header from './components/Header';
 
 class App extends Component {
+	
 	state = {
 		posts:[],
 		printerState: 'none',
@@ -12,27 +14,37 @@ class App extends Component {
 		fileName: '',
 		connecting: 'disconnect',
 	}
-	
-	componentDidMount() {
 
-		axios.get('/api')
-		.then(function (response) {
+	componentDidMount() {
+		axios.get('/api/state')
+		.then(response => {
+			const value = response.data.state
 			this.setState({
-				posts: response.data
+				printerState: value
 			})
-		}.bind(this))
+
+			if(value === "print"){
+				return this.props.history.push('/Status')
+			}
+				
+			console.log(value)
+		})
 	}
+
 	render() {
-	
 		return (	
-			<div>
-				{this.state.posts.map(item => (
-					<div key={item.id}>
-						<h1>{item.title}</h1>
-						<span>{item.content}</span>
-					</div>
-				))}
-			</div>
+			<Router>
+				<div>
+					<Switch>
+						<Route exact path="/" component={Home} />
+						<Route path="/Status" component={Status} />
+						<Route path="/FileUpload" component={FileUpload} />
+						<Route path="/MaterialSelect" component={MaterialSelect} />
+						<Route path="/PrintFinish" component={PrintFinish} />
+						<Route path="/Test" Component={Test} />
+					</Switch>
+				</div>
+			</Router>
 		);
 	}
 }

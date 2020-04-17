@@ -1,0 +1,22 @@
+{
+	"height_offset" : 000,
+	"led_offset" : 000,
+	
+	
+	
+    "bed_curing_time": 5000,
+    "bed_curing_layer": 3,
+    "curing_time": 1300,
+    "layer_height": 0.1,
+    "move_down_feedrate": 200,
+    "move_up_feedrate": 500,
+    "up_accel_speed" : 30,
+    "up_decel_speed" : 30,
+    "down_accel_speed" : 50,
+    "down_decel_speed" : 50,
+    "resin_type": 1,
+    "total_layer": 143,
+    "z_hop_height": 4,
+    "__relative_height__": 900,
+    "layer_delay": 1000
+}

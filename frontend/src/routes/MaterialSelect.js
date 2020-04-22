@@ -19,7 +19,7 @@ class MaterialSelect extends Component {
 		})
 	}
 
-	MaterialChange = (event) => {
+	materialChange = (event) => {
 		this.setState({
 			material: event.target.value
 		})
@@ -34,7 +34,7 @@ class MaterialSelect extends Component {
                     </button>
                 </Link>
 				
-				<select value={this.state.material} onChange={this.MaterialChange}>
+				<select value={this.state.material} onChange={this.materialChange}>
 				{this.state.materialList.map((material) => {
 					return <option value={material}>{material}</option>
 					})}

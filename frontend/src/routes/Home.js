@@ -13,7 +13,7 @@ class Home extends Component {
 	render() {
 		return (
 			<div>
-				<Link to="/FileUpload">
+				<Link to="/Option">
 					<button> NEXT </button>
 				</Link>
 			</div>

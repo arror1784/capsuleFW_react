@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+//import axios from 'axios';
+
+const URL = '/ws/progress'
 
 class Status extends Component {
 
@@ -9,25 +11,22 @@ class Status extends Component {
 		progress: '0',
 	}
 	
-	update = () => {
-		return axios.get('/api/progress')
-				.then(response => {
-					if(response.data.hasOwnProperty('finish')){
-						console.log("finish")
-						this.props.history.push('/PrintFinish')
-					}
-					this.setState({
-						time: response.data.time,
-						progress: response.data.progress
-					})
-				})
-	}
-
 	componentDidMount(){
-		this.timeID = setInterval(this.update,1000)
-	}
-	componentWillUnmount(){
-		clearInterval(this.timeID)
+		this.ws = new WebSocket('ws://' + window.location.host + URL)
+		
+		this.ws.onopen = () => {
+			console.log('connected')	
+		}
+		this.ws.onmessage = evt => {
+			const message = JSON.parse(evt.data)
+			this.setState({
+				time: message.time,
+				progress: message.progress
+			})
+		}
+		this.ws.onclose = () => {
+			console.log("disconnected")
+		}
 	}
 	
 	render() {

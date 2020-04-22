@@ -31,17 +31,29 @@ ALLOWED_HOSTS = ['10.42.0.251', '127.0.0.1', 'localhost'  ]
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+	'channels',
+	'post',
+	'rest_framework',
+	'corsheaders',
+    
+	'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-	
-	'post',
-	'rest_framework',
-	'corsheaders',
 ]
+
+ASGI_APPLICATION = 'djangoreactapi.routing.application'
+
+CHANNEL_LAYERS = {
+	'default':{
+		'BACKEND': 'channels_redis.core.RedisChannelLayer',
+		'CONFIG': {
+			"hosts": [('127.0.0.1', 6379)],
+		},
+	}
+}
 
 MIDDLEWARE = [
 	'corsheaders.middleware.CorsMiddleware',
@@ -111,13 +123,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

@@ -5,47 +5,55 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import json,time
 
 class PrinterConsumer(WebsocketConsumer):
- 
-	def connect(self):
-		self.accept()
-	
-		self.scheduler = BackgroundScheduler()
 
-		self.scheduler.add_job(self.sendHello, 'interval', seconds=5, id="test")
-		self.scheduler.start()
+	def connect(self):
+
+		async_to_sync(self.channel_layer.group_add)(
+			"chat_printer",
+			self.channel_name
+		)
+
+		self.accept()
 
 	def disconnect(self, close_code):
-		self.scheduler.shutdown(wait=False)
+		async_to_sync(self.channel_layer.group_discard)(
+			"chat_printer",
+			self.channel_name
+		)
 
 	def receive(self, text_data):
-		print("received : " + text_data)
+		message = json.loads(text_data)
 
-	def chat_message(self, event):
-		message = event['message']
-
-		self.send("hello world")
-
-	def sendHello(self):
-		dic = {}
-		dic["message"] = "hello world message";
-
-		self.send(json.dumps(dic))
+		if message['type'] == 'progress':
+			async_to_sync(self.channel_layer.group_send)(
+				"chat_progress",
+				{
+					'type': 'updateProgress',
+					'message': message
+				}
+			)
 
 class ProgressConsumer(WebsocketConsumer):
-	
+
 	def connect(self):
+		async_to_sync(self.channel_layer.group_add)(
+			"chat_progress",
+            self.channel_name
+        )
+
 		self.accept()	
-		
-		self.scheduler = BackgroundScheduler()
-		self.scheduler.add_job(self.sendProgress,'interval', seconds=1)
-		self.scheduler.start()
-	
+
 	def disconnect(self, close_code):
-		self.scheduler.shutdown(wait=False)
+		async_to_sync(self.channel_layer.group_discard)(
+			"chat_progress",
+			self.channel_name
+		)
 
-	def sendProgress(self):
+	def updateProgress(self,event):
+		
+		message = event['message']
 		dic = {}
-		dic["time"] = time.strftime('%H-%M-%S', time.localtime(time.time()))
-		dic["progress"] = round(time.time() % 100)
-
+		dic["time"] = message['time']
+		dic["progress"] = message['progress']
+	
 		self.send(json.dumps(dic))

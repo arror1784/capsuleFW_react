@@ -11,8 +11,6 @@ from post.forms import UploadFileForm
 
 import json,time
 
-
-from .printerControl import PrinterControl
 from .calc_file_hash import calc_file_hash
 
 class ListPost(generics.ListCreateAPIView):

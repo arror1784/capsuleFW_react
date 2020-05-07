@@ -8,9 +8,7 @@ urlpatterns = [
 	path('test/', views.test),
 	path('upload/',views.upload_file),
 	path('state/',views.printerState),
-	path('progress/',views.progress),
-	path('materialList/',views.materialList),
-	path('chat/',views.chat),
-	path('room/<slug:room_name>/',views.room),
+	path('material/<slug:material_name>',views.material),
+	path('material/list',views.materialList),
 ]
 

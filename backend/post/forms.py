@@ -1,10 +1,10 @@
 from django import forms
 
-from .models import UploadFileModel
+from .models import FilePrinting
 
-class UploadFileForm(forms.ModelForm):
+class FilePrintingForm(forms.ModelForm):
     class Meta:
-        model = UploadFileModel
+        model = FilePrinting
         fields = ['file']
 
 #    def __init__(self, *args, **kwargs):

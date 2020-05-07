@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from .models import Post
 from .serializers import PostSerializer
 
-from post.forms import UploadFileForm
+from post.forms import FilePrintingForm
 
 import json,time
 
@@ -27,7 +27,7 @@ def test(request):
 
 def upload_file(request):
 	if request.method == 'POST':
-		form = UploadFileForm(request.POST,request.FILES)
+		form = FilePrintingForm(request.POST,request.FILES)
 		print(request.FILES['file'].name)
 		if form.is_valid():
 			form.save()
@@ -36,30 +36,13 @@ def upload_file(request):
 			return HttpResponse(status=201)
 	return HttpResponse(status=404)
 
-def progress(request):
-	dic = {}
-
-	dic["time"] =  time.strftime('%H-%M-%S', time.localtime(time.time()))
-	dic["progress"] = round(time.time() % 100)
-	return JsonResponse(dic)
-
 def printerState(request):
 	dic = {}
 
 	dic["state"] = "ready"
 	return JsonResponse(dic)	
 
-def materialList(request):
-	
-	materialList = ["temp","final"]
-	dic = {}
-	dic["materialList"] = materialList
-	return JsonResponse(dic)
-
-def chat(request):
-	return render(request,'post/chat.html',{})
-
-def room(request,room_name):
-	return render(request, 'post/room.html',{
-		'room_name_json':mark_safe(json.dumps(room_name))
-		})
+def materialList(requet):
+	pass
+def material(request,materialName):
+	pass

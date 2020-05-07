@@ -26,8 +26,8 @@ class PrintingState(models.Model):
 		default=READY
 	)
 
-	total_layer = models.IntegerField()
-	current_layer = models.IntegerField()
+	total_layer = models.IntegerField(default=0)
+	current_layer = models.IntegerField(default=0)
 	material = models.ForeignKey('Material',on_delete=models.PROTECT,null=True)
 
 class PrinterSetting(models.Model):
@@ -46,7 +46,4 @@ class Material(models.Model):
 	layer_delay = models.IntegerField()
 	layer_height = models.IntegerField()
 	z_hop_height = models.IntegerField()
-
-
-
 

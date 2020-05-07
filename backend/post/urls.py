@@ -8,7 +8,7 @@ urlpatterns = [
 	path('test/', views.test),
 	path('upload/',views.upload_file),
 	path('state/',views.printerState),
-	path('material/<slug:material_name>',views.material),
-	path('material/list',views.materialList),
+	path('material/',views.materialList),
+	path('material/<slug:materialName>',views.material),
 ]
 

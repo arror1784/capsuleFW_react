@@ -1,17 +1,17 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework import generics
 
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.utils.safestring import mark_safe
+from django.core import serializers
+from django.forms.models import model_to_dict
 
-from .models import Post
+from .models import Post,Material
 from .serializers import PostSerializer
 
 from post.forms import FilePrintingForm
 
 import json,time
-
-from .calc_file_hash import calc_file_hash
 
 class ListPost(generics.ListCreateAPIView):
     queryset = Post.objects.all()
@@ -43,6 +43,14 @@ def printerState(request):
 	return JsonResponse(dic)	
 
 def materialList(requet):
-	pass
+	materials = Material.objects.values("M_id")
+	return JsonResponse(list(materials),safe=False)
+
 def material(request,materialName):
-	pass
+	material = get_object_or_404(Material,pk=materialName)
+	
+	material_dic = model_to_dict(material)
+
+	return JsonResponse(material_dic)
+
+

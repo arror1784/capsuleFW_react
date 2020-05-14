@@ -7,12 +7,12 @@ import json,time
 class PrinterConsumer(WebsocketConsumer):
 
 	def connect(self):
-
+		
 		async_to_sync(self.channel_layer.group_add)(
 			"chat_printer",
 			self.channel_name
 		)
-
+		
 		self.accept()
 
 	def disconnect(self, close_code):
@@ -22,17 +22,22 @@ class PrinterConsumer(WebsocketConsumer):
 		)
 
 	def receive(self, text_data):
-		message = json.loads(text_data)
+		ms = json.loads(text_data)
 
-		if message['type'] == 'progress':
+		if ms['type'] == 'progress':
 			async_to_sync(self.channel_layer.group_send)(
 				"chat_progress",
 				{
 					'type': 'updateProgress',
-					'message': message
+					'message': ms
 				}
 			)
+		elif ms['type'] == 'printCommand':
+			self.message = ms	
 
+	def sendToPrinter(self,event):
+		self.send(json.dumps(event['message']))
+	
 class ProgressConsumer(WebsocketConsumer):
 
 	def connect(self):

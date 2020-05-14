@@ -28,7 +28,8 @@ class PrintingState(models.Model):
 
 	total_layer = models.IntegerField(default=0)
 	current_layer = models.IntegerField(default=0)
-	material = models.ForeignKey('Material',on_delete=models.PROTECT,null=True)
+	material = models.ForeignKey('Material',models.SET_NULL,null=True,blank=True)
+	printing_name = models.CharField(max_length=50,default="-",null=True,blank=True)
 
 class PrinterSetting(models.Model):
 	height_offset = models.IntegerField()
@@ -40,10 +41,10 @@ class FilePrinting(models.Model):
 
 class Material(models.Model):
 	M_id = models.CharField(max_length=50,primary_key=True)
-	curing_time = models.IntegerField()
-	bed_curing_layer = models.IntegerField()
-	bed_curing_time = models.IntegerField()
-	layer_delay = models.IntegerField()
-	layer_height = models.IntegerField()
-	z_hop_height = models.IntegerField()
+	curing_time = models.IntegerField(blank=True,default=0)
+	bed_curing_layer = models.IntegerField(blank=True,default=0)
+	bed_curing_time = models.IntegerField(blank=True,default=0)
+	layer_delay = models.IntegerField(blank=True,default=0)
+	layer_height = models.FloatField(blank=True,default=0.0)
+	z_hop_height = models.IntegerField(blank=True,default=0)
 

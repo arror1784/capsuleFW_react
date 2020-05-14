@@ -3,8 +3,6 @@ from django.urls import path
 from . import views, materialViews,fileViews
 
 urlpatterns = [
-	path('', views.ListPost.as_view()),
-	path('<int:pk>/', views.DetailPost.as_view()),
 	path('get_csrf/', views.get_csrf),
 	
 	path('state/',views.printerState),

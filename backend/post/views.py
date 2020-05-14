@@ -18,14 +18,6 @@ from post.forms import FilePrintingForm
 import os,shutil,json,time,zipfile
 from pathlib import Path
 
-class ListPost(generics.ListCreateAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-
-class DetailPost(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-
 def get_csrf(request):
 	return render(request,'post/csrf.html',{})
 

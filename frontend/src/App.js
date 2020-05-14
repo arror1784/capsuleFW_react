@@ -9,25 +9,14 @@ class App extends Component {
 	
 	state = {
 		posts:[],
-		printerState: 'none',
-		material: '',
-		fileName: '',
-		connecting: 'disconnect',
 	}
 
 	componentDidMount() {
 		axios.get('/api/state')
 		.then(response => {
-			const value = response.data.state
-			this.setState({
-				printerState: value
-			})
-
-			if(value === "print"){
+			if(response.data.state !== "ready"){
 				return this.props.history.push('/Status')
 			}
-				
-			console.log(value)
 		})
 	}
 
@@ -39,8 +28,8 @@ class App extends Component {
 						<Route exact path="/" component={Home} />
 						<Route path="/Status" component={Status} />
 						<Route path="/Option" component={Option} />
-						<Route path="/FileUpload" component={FileUpload} />
-						<Route path="/MaterialSelect" component={MaterialSelect} />
+						<Route path="/file" component={FileUpload} />
+						<Route path="/file/material" component={MaterialSelect} />
 						<Route path="/PrintFinish" component={PrintFinish} />
 						<Route path="/Test" Component={Test} />
 					</Switch>

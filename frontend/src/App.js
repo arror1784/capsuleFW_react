@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { Home, FileUpload, MaterialSelect, Status, PrintFinish, Option } from './routes';
+import { Home, FileUpload, MaterialSelect, Progress, PrintFinish, Print } from './routes';
 import Test from './routes/Test';
-//import Header from './components/Header';
+import SideBarHeader from './components/SideBarHeader';
 
 class App extends Component {
 	
 	state = {
 		posts:[],
 	}
-
+	
 	componentDidMount() {
 		axios.get('/api/state')
 		.then(response => {
@@ -22,19 +22,21 @@ class App extends Component {
 
 	render() {
 		return (	
-			<Router>
-				<div>
-					<Switch>
-						<Route exact path="/" component={Home} />
-						<Route path="/Status" component={Status} />
-						<Route path="/Option" component={Option} />
-						<Route path="/file" component={FileUpload} />
-						<Route path="/file/material" component={MaterialSelect} />
-						<Route path="/PrintFinish" component={PrintFinish} />
-						<Route path="/Test" Component={Test} />
-					</Switch>
-				</div>
-			</Router>
+			<div>
+				<Router>
+					<SideBarHeader>
+						<Switch>
+							<Route exact path="/" component={Home} />
+							<Route path="/progress" component={Progress} />
+							<Route path="/print" component={Print} />
+							<Route path="/file" component={FileUpload} />
+							<Route path="/file/material" component={MaterialSelect} />
+							<Route path="/printFinish" component={PrintFinish} />
+							<Route path="/test" Component={Test} />
+						</Switch>
+					</SideBarHeader>
+				</Router>
+			</div>
 		);
 	}
 }

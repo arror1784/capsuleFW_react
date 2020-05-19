@@ -3,7 +3,7 @@ import axios from 'axios';
 import {Link} from 'react-router-dom';
 import CSRFToken from '../csrftoken';
 
-class FileUpload extends Component {
+class Print extends Component {
 
 	state = {
 		selectedFile: null,
@@ -95,11 +95,6 @@ class FileUpload extends Component {
 		return (
 			<div>
 				<CSRFToken />
-				<Link to="/">
-					<button>
-						PREVIOUS
-					</button>
-				</Link>
 				<div>
 					<input type="file" name="file" accept=".zip" onChange=
 					{e => this.handleFileInput(e)}/>
@@ -132,4 +127,4 @@ class FileUpload extends Component {
 	}
 }
 
-export default FileUpload;
+export default Print;

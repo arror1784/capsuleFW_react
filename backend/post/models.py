@@ -10,19 +10,22 @@ class Post(models.Model):
 
 class PrintingState(models.Model):
 
+	
 	READY = 'ready'
 	PRINT = 'print'
 	PAUSE = 'pause'
+	SETTING = 'SETTING'
 
 	STATE_LIST = [
 		(READY, 'ready'),
 		(PRINT, 'print'),
 		(PAUSE, 'pause'),
+		(SETTING, 'setting'),
 	]
 
 	state = models.CharField(
 		choices=STATE_LIST,
-		max_length=6,
+		max_length=7,
 		default=READY
 	)
 

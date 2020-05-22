@@ -34,26 +34,21 @@ const styles = (theme) => ({
 class Print extends Component {
 
 	state = {
-		selectedFile: {
-			name: "hello"
-		},
+		selectedFile: null,
 		selectedMaterial: null,
 		selected: [true,true],
 		materialList: ["--------------------"],
 		activeStep: 0,
-		steps: ['Select Print File', 'Choose Material', 'Print'],
+		steps: ['select print file', 'choose material', 'print'],
 	}
 	getStepContent(step) {
 		switch (step) {
 			case 0:
 				return <FileUpload onFileUploaded={this.handleFileUpload}/>
 			case 1:
-				return <MaterialSelect materialList={this.state.materialList} material={this.state.selectedMaterial} onMaterialSelected={this.handleMaterialSelected}/>
+				return <MaterialSelect materialList={this.state.materialList} material=this.state.selectedMaterial onMaterialSelected={this.handleMaterialSelected}/>
 			case 2:
-				return (<Typography>
-						file name :  {this.state.selectedFile.name} <br/>
-						material :  {this.state.selectedMaterial}
-						</Typography>);
+				return 'try';
 			default:
 				return 'unknown';
 		}
@@ -63,15 +58,17 @@ class Print extends Component {
 		this.setState({
 			activeStep: this.state.activeStep + 1
 		})
-	}
-	handlePrint = () => {
-		console.log("hswefjsdf")	
-	}
+	};
+	handleBack = () => {
+		this.setState({
+			activeStep: this.state.activeStep - 1
+		})
+	};
 	handleReset = () => {
 		this.setState({
 			activeStep: 0
 		})
-	}
+	};
 	handleFileUpload = (file) => {
 		this.setState({
 			selectedFile: file,
@@ -123,31 +120,33 @@ class Print extends Component {
 						<StepContent>
 							{this.getStepContent(index)}
 							<div className={classes.actionsContainer}>
-								{this.state.activeStep !== this.state.steps.length - 1
-								&&	(<Button
+								<Button
+									disabled={this.state.activeStep === 0}
+									onClick={this.handleBack}
+									className={classes.button}> Back </Button>
+								<Button
 									variant="contained"
 									color="primary"
 									onClick={this.handleNext}
 									disabled={this.state.selected[index]}
 									className={classes.button}>
-									Next </Button>)} 
-								{this.state.activeStep === this.state.steps.length - 1
-								&& (<Button
-									onClick={this.handleReset}
-									className={classes.button}> Reset 
-								</Button>)}
-								{this.state.activeStep === this.state.steps.length - 1
-								&& (<Button
-									variant="contained"
-									color="primary"
-									onClick={this.handlePrint}
-									className={classes.button}> Print 
-								</Button>)}
+									{this.state.activeStep === this.state.steps.length - 1 ? 'Finish' : 'Next'}
+								</Button>
 							</div>
 						</StepContent>
 					</Step>
 				))}
 				</Stepper>
+				{this.state.activeStep === this.state.steps.length && (
+					<Paper square elevation={0} className={classes.resetContainer}>
+						<Typography>
+							All steps completed - you&apos;re finished
+						</Typography>
+						<Button onClick={this.handleReset} className={classes.button}>
+							Reset
+						</Button>
+					</Paper>
+				)}
 			</div>
 		);
 	}

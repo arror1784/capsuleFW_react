@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { Home, FileUpload, MaterialSelect, Progress, PrintFinish, Print } from './routes';
+import { Home, FileUpload, MaterialSelect, Progress, Print } from './routes';
 import Test from './routes/Test';
 import SideBarHeader from './components/SideBarHeader';
 
@@ -31,7 +31,6 @@ class App extends Component {
 							<Route path="/print" component={Print} />
 							<Route path="/file" component={FileUpload} />
 							<Route path="/file/material" component={MaterialSelect} />
-							<Route path="/printFinish" component={PrintFinish} />
 							<Route path="/test" Component={Test} />
 						</Switch>
 					</SideBarHeader>

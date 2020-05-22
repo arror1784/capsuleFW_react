@@ -34,44 +34,24 @@ const styles = (theme) => ({
 class Print extends Component {
 
 	state = {
-		selectedFile: {
-			name: "hello"
-		},
+		selectedFile: null,
 		selectedMaterial: null,
 		selected: [true,true],
 		materialList: ["--------------------"],
 		activeStep: 0,
-		steps: ['Select Print File', 'Choose Material', 'Print'],
-	}
-	getStepContent(step) {
-		switch (step) {
-			case 0:
-				return <FileUpload onFileUploaded={this.handleFileUpload}/>
-			case 1:
-				return <MaterialSelect materialList={this.state.materialList} material={this.state.selectedMaterial} onMaterialSelected={this.handleMaterialSelected}/>
-			case 2:
-				return (<Typography>
-						file name :  {this.state.selectedFile.name} <br/>
-						material :  {this.state.selectedMaterial}
-						</Typography>);
-			default:
-				return 'unknown';
-		}
+		steps: ['select print file', 'choose material', 'print'],
 	}
 	
 	handleNext = () => {
 		this.setState({
 			activeStep: this.state.activeStep + 1
 		})
-	}
-	handlePrint = () => {
-		console.log("hswefjsdf")	
-	}
+	};
 	handleReset = () => {
 		this.setState({
 			activeStep: 0
 		})
-	}
+	};
 	handleFileUpload = (file) => {
 		this.setState({
 			selectedFile: file,
@@ -117,36 +97,52 @@ class Print extends Component {
 		return (
 			<div className={classes.root}>
 				<Stepper activeStep={this.state.activeStep} orientation="vertical">
-				{this.state.steps.map((label, index) => (
-					<Step key={label}>
-						<StepLabel>{label}</StepLabel>
+					<Step key="Select File">
+						<StepLabel>{"Select File"}</StepLabel>
 						<StepContent>
-							{this.getStepContent(index)}
+							<FileUpload onFileUploaded={this.handleFileUpload}/> 
 							<div className={classes.actionsContainer}>
-								{this.state.activeStep !== this.state.steps.length - 1
-								&&	(<Button
+								<Button
 									variant="contained"
 									color="primary"
 									onClick={this.handleNext}
-									disabled={this.state.selected[index]}
+									disabled={this.state.selected[0]}
 									className={classes.button}>
-									Next </Button>)} 
-								{this.state.activeStep === this.state.steps.length - 1
-								&& (<Button
-									onClick={this.handleReset}
-									className={classes.button}> Reset 
-								</Button>)}
-								{this.state.activeStep === this.state.steps.length - 1
-								&& (<Button
-									variant="contained"
-									color="primary"
-									onClick={this.handlePrint}
-									className={classes.button}> Print 
-								</Button>)}
+									NEXT
+								</Button>
 							</div>
 						</StepContent>
 					</Step>
-				))}
+                    <Step key="Select Material">
+                        <StepLabel>{"Select Material"}</StepLabel>
+                        <StepContent>
+							<MaterialSelect materialList={this.state.materialList} material={this.state.selectedMaterial} onMaterialSelected={this.handleMaterialSelected}/>
+							<div className={classes.actionsContainer}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={this.handleNext}
+                                    disabled={this.state.selected[1]}
+                                    className={classes.button}>
+                                    NEXT
+                                </Button>
+                            </div>
+                        </StepContent>
+                    </Step>
+                    <Step key="Print">
+                        <StepLabel>{"Print"}</StepLabel>
+                        <StepContent>
+                            <div className={classes.actionsContainer}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={this.handleNext}
+                                    className={classes.button}>
+                                    PRINT
+                                </Button>
+							</div>
+						</StepContent>
+					</Step>
 				</Stepper>
 			</div>
 		);

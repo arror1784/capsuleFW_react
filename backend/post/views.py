@@ -18,6 +18,10 @@ from post.forms import FilePrintingForm
 import os,shutil,json,time,zipfile
 from pathlib import Path
 
+def test(request):
+	print(request.body)
+	return HttpResponse(status=200)
+
 def get_csrf(request):
 	return render(request,'post/csrf.html',{})
 
@@ -28,8 +32,8 @@ def printerState(request):
 	return JsonResponse(dic)	
 
 def startPrint(request):
-	#if request.method != 'POST':
-	#		return HttpResponse(status=400)
+	if request.method != 'POST':
+		return HttpResponse(status=404)
 	#check printer state
 	state,is_follow = PrintingState.objects.get_or_create(id=1)
 	if state.state != PrintingState.READY:
@@ -43,14 +47,16 @@ def startPrint(request):
 	#send start to qt
 	message = {}
 	message["type"] = "printCommand"
-	message["hello"] = "world"
+	message["command"] = "start"
+	message["printing_name"] = state.printing_name
+	message["folder_path"] = settings.MEDIA_ROOT + '/' + state.printing_file_name
+	message["material"] = state.material
+
 	channel_layer = get_channel_layer()
 	async_to_sync(channel_layer.group_send)(
 			"chat_printer" 
 			,{"type": "sendToPrinter","message": message})	
+	
 	#4. response 404 or 200
-
-	print(message)
-
 	return HttpResponse(status=200)
 

@@ -15,5 +15,7 @@ urlpatterns = [
 	path('material/<slug:materialName>/select/',materialViews.materialSelect),
 	
 	path('start/',views.startPrint),
+	
+	path('test/',views.test),
 ]
 

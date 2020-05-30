@@ -28,6 +28,9 @@ class Status extends Component {
 			console.log("disconnected")
 		}
 	}
+	componentWillUnmount(){
+		this.ws.close()
+	}
 	
 	render() {
 		return (

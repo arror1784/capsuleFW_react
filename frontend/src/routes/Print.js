@@ -6,14 +6,12 @@ import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import StepContent from '@material-ui/core/StepContent';
 import Button from '@material-ui/core/Button';
-import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 
 import axios from 'axios';
 
 import FileUpload from '../components/FileUpload';
 import MaterialSelect from '../components/MaterialSelect';
-import update from 'react-addons-update'
 
 const styles = (theme) => ({
 	root: {
@@ -35,13 +33,14 @@ class Print extends Component {
 
 	state = {
 		selectedFile: {
-			name: "hello"
+			name: ""
 		},
 		selectedMaterial: null,
 		selected: [true,true],
 		materialList: ["--------------------"],
 		activeStep: 0,
 		steps: ['Select Print File', 'Choose Material', 'Print'],
+		socketName: "",
 	}
 	getStepContent(step) {
 		switch (step) {
@@ -55,22 +54,46 @@ class Print extends Component {
 						material :  {this.state.selectedMaterial}
 						</Typography>);
 			default:
-				return 'unknown';
+				return "no more step";
 		}
 	}
-	
+	componentDidMount(){
+		this.ws = new WebSocket('ws://' + window.location.hostname + ':8000/ws/setting')
+
+		this.ws.onopen = () => { console.log('connected') }
+		this.ws.onclose = (event) => { 
+			if(event.code === 4100){
+				this.props.history.push('/')
+				alert('timeout')
+			}
+		}
+		this.ws.onerror = () => {
+			this.props.history.push('/')
+			alert('can not access this page')
+		}
+		this.ws.onmessage = (evt) => {
+			const message = JSON.parse(evt.data)
+			this.setState({
+				socketName: message.name
+			})
+		}
+	}
+	componentWillUnmount(){
+		this.ws.close()
+	}
 	handleNext = () => {
-		this.setState({
-			activeStep: this.state.activeStep + 1
-		})
+		this.setState({	activeStep: this.state.activeStep + 1 })
 	}
 	handlePrint = () => {
-		console.log("hswefjsdf")	
+		axios.post("/api/start/").then(res => {
+			this.props.history.push('/progress/')
+			alert('sucess')
+		}).catch(err => {
+			alert('print fail')
+		})
 	}
 	handleReset = () => {
-		this.setState({
-			activeStep: 0
-		})
+		this.setState({	activeStep: 0 })
 	}
 	handleFileUpload = (file) => {
 		this.setState({
@@ -103,15 +126,6 @@ class Print extends Component {
 			selected: [true, false]
 		})
 	}
-
-	handleStartPost = () => {
-		axios.post("/api/start/").then(res => {
-			alert('sucess')
-		}).catch(err => {
-			alert('print fail')
-		})
-	}
-
 	render() {
 		const {classes} = this.props;
 		return (

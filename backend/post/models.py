@@ -9,7 +9,6 @@ class Post(models.Model):
         return self.title
 
 class PrintingState(models.Model):
-
 	
 	READY = 'ready'
 	PRINT = 'print'
@@ -28,11 +27,12 @@ class PrintingState(models.Model):
 		max_length=7,
 		default=READY
 	)
-
+	print_setting_name = models.CharField(max_length=30,null=True,blank=True)
 	total_layer = models.IntegerField(default=0)
 	current_layer = models.IntegerField(default=0)
 	material = models.ForeignKey('Material',models.SET_NULL,null=True,blank=True)
-	printing_name = models.CharField(max_length=50,default="-",null=True,blank=True)
+	printing_name = models.CharField(max_length=50,null=True,blank=True)
+	printing_file_name = models.CharField(max_length=50,null=True,blank=True)
 
 class PrinterSetting(models.Model):
 	height_offset = models.IntegerField()
@@ -48,6 +48,13 @@ class Material(models.Model):
 	bed_curing_layer = models.IntegerField(blank=True,default=0)
 	bed_curing_time = models.IntegerField(blank=True,default=0)
 	layer_delay = models.IntegerField(blank=True,default=0)
-	layer_height = models.FloatField(blank=True,default=0.0)
 	z_hop_height = models.IntegerField(blank=True,default=0)
+
+
+	max_speed = models.IntegerField(blank=True,default=0)
+	init_speed = models.IntegerField(blank=True,default=0)
+	up_accel_speed = models.IntegerField(blank=True,default=0)
+	up_decel_speed = models.IntegerField(blank=True,default=0)
+	down_accel_speed = models.IntegerField(blank=True,default=0)
+	down_decel_speed = models.IntegerField(blank=True,default=0)
 

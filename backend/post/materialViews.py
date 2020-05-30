@@ -4,6 +4,8 @@ from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.forms.models import model_to_dict
 
 from channels.layers import get_channel_layer
+from .webSocketServer import PrintSettingConsumer
+
 from asgiref.sync import async_to_sync
 
 from .models import Post,Material,PrintingState
@@ -32,4 +34,7 @@ def materialSelect(request,materialName):
     
 	state.save()
 
+	channel_layer = get_channel_layer()
+	async_to_sync(channel_layer.group_send)(PrintSettingConsumer.GROUP_NAME,{'type':'updateTimeout'})
+	
 	return HttpResponse(status=200)

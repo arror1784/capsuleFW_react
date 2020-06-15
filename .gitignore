@@ -9,8 +9,6 @@ media
 node_modules
 django-venv
 
-build
-
 .DS_Store
 npm-debug.log
 
@@ -46,7 +44,7 @@ bower_components
 .lock-wscript
 
 # Compiled binary addons (http://nodejs.org/api/addons.html)
-build/Release
+#build/Release
 
 # Dependency directories
 node_modules/

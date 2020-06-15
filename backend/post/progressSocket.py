@@ -18,10 +18,5 @@ class ProgressConsumer(WebsocketConsumer):
 			self.channel_name)
 
 	def updateProgress(self,event):
-
-		message = event['message']
-		dic = {}
-		dic["time"] = message['time']
-		dic["progress"] = message['progress']
-
-		self.send(json.dumps(dic))
+		print("fqwsdfwfesfd")
+		self.send(json.dumps(event['message']))

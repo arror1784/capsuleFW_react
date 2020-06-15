@@ -71,7 +71,6 @@ function SideBarHeader(props) {
     <div>
       <div className={classes.toolbar}>
         <Typography paragraph>
-			capsuleFW
 		</Typography>
       </div>
       <Divider />
@@ -80,14 +79,14 @@ function SideBarHeader(props) {
             <ListItemIcon> <HomeRoundedIcon/> </ListItemIcon>
             <ListItemText primary="home"/>
           </ListItem>
-          <ListItem button component={Link} to="/print">
+          {/*<ListItem button component={Link} to="/print">
             <ListItemIcon> <PlayArrowRoundedIcon/> </ListItemIcon>
             <ListItemText primary="print"/>
           </ListItem>
           <ListItem button component={Link} to="/progress">
             <ListItemIcon> <UpdateRoundedIcon/> </ListItemIcon>
             <ListItemText primary="progress"/>
-          </ListItem>
+          </ListItem>*/}
       </List>
     </div>
   );
@@ -108,7 +107,7 @@ function SideBarHeader(props) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-            Responsive drawer
+          	C-10	
           </Typography>
         </Toolbar>
       </AppBar>

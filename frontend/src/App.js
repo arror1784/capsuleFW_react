@@ -26,12 +26,13 @@ class App extends Component {
 				<Router>
 					<SideBarHeader>
 						<Switch>
-							<Route exact path="/" component={Home} />
+							<Route exact path="/" component={Progress} />
+							{/*<Route exact path="/" component={Home} />
 							<Route path="/progress" component={Progress} />
 							<Route path="/print" component={Print} />
 							<Route path="/file" component={FileUpload} />
 							<Route path="/file/material" component={MaterialSelect} />
-							<Route path="/test" Component={Test} />
+							<Route path="/test" Component={Test} />*/}
 						</Switch>
 					</SideBarHeader>
 				</Router>

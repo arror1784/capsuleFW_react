@@ -79,14 +79,14 @@ function SideBarHeader(props) {
             <ListItemIcon> <HomeRoundedIcon/> </ListItemIcon>
             <ListItemText primary="home"/>
           </ListItem>
-          {/*<ListItem button component={Link} to="/print">
+          <ListItem button component={Link} to="/print">
             <ListItemIcon> <PlayArrowRoundedIcon/> </ListItemIcon>
             <ListItemText primary="print"/>
           </ListItem>
           <ListItem button component={Link} to="/progress">
             <ListItemIcon> <UpdateRoundedIcon/> </ListItemIcon>
             <ListItemText primary="progress"/>
-          </ListItem>*/}
+          </ListItem>
       </List>
     </div>
   );

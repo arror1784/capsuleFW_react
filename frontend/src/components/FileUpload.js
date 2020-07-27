@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import CSRFToken from '../csrftoken';
+import FileUploaderBttn from "./FileUploaderBttn" 
+var JSZip = require('jszip');
+var FileSaver = require('file-saver');
+var  fs = require('fs');
 
 class FileUpload extends Component {
 
@@ -11,33 +15,38 @@ class FileUpload extends Component {
 		axios.get('/api/get_csrf/')
 	}
 	handleFileInput(e){
-		console.log(e.target.value)
-		this.setState({
-			selectedFile : e.target.files[0],
-		})
-	}
-	handleFilePost = () => {
-		let formData = new FormData();
-		if(this.state.selectedFile === null){
+		let first = e.target.files[0]
+		if(first === null){
 			alert('file select required')
 			return
 		}
-		formData.append('file', this.state.selectedFile);
-		axios.post("/api/file/upload/", formData).then(res => {
-			this.props.onFileUploaded(this.state.selectedFile)	
-		}).catch(err => {
-			alert('file upload fail')
+		console.log(e.target.value)
+		//zip files...
+		var zip = new JSZip();
+		for(let i = 0; i < e.target.files.length; ++i)
+		{
+			let file = e.target.files[i];
+			zip.file(file.name, file, {binary: true});
+		}
+
+		zip.generateAsync({type:"blob"}).then(function (blob) {
+			let formData = new FormData();
+			formData.append('file', blob);
+			axios.post("/api/file/upload/", formData).then(res => {
+				this.props.onFileUploaded(first.name)	
+			}).catch(err => {
+				alert('file upload fail')
 		})
+		});
+		
 	}
+
 	render() {
 		return (
 			<div>
 				<CSRFToken />
-				<input type="file" name="file" accept=".zip" onChange=
-				{e => this.handleFileInput(e)}/>
-				<button type="button" onClick={this.handleFilePost}>
-					file select
-				</button>
+				<FileUploaderBttn handleFile={this.handleFileInput}></FileUploaderBttn>
+				{/* <input type="file" name="file"  webkitdirectory=""  onChange={e => this.handleFileInput(e)}/> */}
 			</div>
 		);
 	}

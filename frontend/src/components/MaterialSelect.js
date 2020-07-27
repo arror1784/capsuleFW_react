@@ -20,12 +20,7 @@ class Print extends Component {
 	}
 
 	materialChange = (event) => {
-		this.setState({
-			material: event.target.value	
-		})
-	}
-
-	handleMaterialPost = () => {
+		this.state.material = event.target.value
 		var str = "/api/material/" + this.state.material + "/select/" 
 		if(this.state.material === 'Choose here'){
 			alert('material select required')
@@ -37,6 +32,8 @@ class Print extends Component {
 			alert('material select fail')
 		})
 	}
+
+
 	render() {
 		return (
 			<div>
@@ -47,9 +44,6 @@ class Print extends Component {
 						return <option key={index}>{material}</option>
 					})}
 				</select>
-				<button type="button" onClick={this.handleMaterialPost}>
-					material select
-				</button>
 			</div>
 		);
 	}

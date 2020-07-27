@@ -20,8 +20,8 @@ def file(request):
 		form = FilePrintingForm(request.POST,request.FILES)
 		if form.is_valid():
 		
-			if not request.FILES['file'].name.endswith(".zip"):
-				return HttpResponse(status=400)
+			# if not request.FILES['file'].name.endswith(".zip"):
+			# 	return HttpResponse(status=400)
 
 			form.save()
 			

@@ -32,9 +32,7 @@ const styles = (theme) => ({
 class Print extends Component {
 
 	state = {
-		selectedFile: {
-			name: ""
-		},
+		selectedFilename: "",
 		selectedMaterial: null,
 		selected: [true,true],
 		materialList: ["--------------------"],
@@ -50,7 +48,7 @@ class Print extends Component {
 				return <MaterialSelect materialList={this.state.materialList} material={this.state.selectedMaterial} onMaterialSelected={this.handleMaterialSelected}/>
 			case 2:
 				return (<Typography>
-						file name :  {this.state.selectedFile.name} <br/>
+						file name :  {this.state.selectedFilename} <br/>
 						material :  {this.state.selectedMaterial}
 						</Typography>);
 			default:
@@ -95,9 +93,9 @@ class Print extends Component {
 	handleReset = () => {
 		this.setState({	activeStep: 0 })
 	}
-	handleFileUpload = (file) => {
+	handleFileUpload = (filename) => {
 		this.setState({
-			selectedFile: file,
+			selectedFilename : filename,
 			selected: [false, true]
 		})
 		axios.get('/api/material/')
@@ -118,6 +116,7 @@ class Print extends Component {
 			this.setState({
 				materialList: list,
 			})
+			this.handleNext();
 		})
 	}
 	handleMaterialSelected = (material) => {
@@ -125,6 +124,7 @@ class Print extends Component {
 			selectedMaterial: material,
 			selected: [true, false]
 		})
+		this.handleNext();
 	}
 	render() {
 		const {classes} = this.props;
@@ -137,14 +137,6 @@ class Print extends Component {
 						<StepContent>
 							{this.getStepContent(index)}
 							<div className={classes.actionsContainer}>
-								{this.state.activeStep !== this.state.steps.length - 1
-								&&	(<Button
-									variant="contained"
-									color="primary"
-									onClick={this.handleNext}
-									disabled={this.state.selected[index]}
-									className={classes.button}>
-									Next </Button>)} 
 								{this.state.activeStep === this.state.steps.length - 1
 								&& (<Button
 									onClick={this.handleReset}

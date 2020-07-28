@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Home, Progress, Print } from './routes';
 import SideBarHeader from './components/SideBarHeader';
@@ -10,15 +9,6 @@ class App extends Component {
 		posts:[],
 	}
 	
-	componentDidMount() {
-		axios.get('/api/state')
-		.then(response => {
-			if(response.data.state !== "ready"){
-				return this.props.history.push('/Status')
-			}
-		})
-	}
-
 	render() {
 		return (	
 			<div>

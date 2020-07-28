@@ -29,16 +29,17 @@ class ProgressConsumer(WebsocketConsumer):
 		
 	def receive(self, text_data):
 		ms = json.loads(text_data)
-		async_to_sync(self.channel_layer.group_send)(
-			self.GROUP_NAME,
-			{
-				'type': 'changeState',
-				'message': ms
-			})
-		async_to_sync(self.channel_layer.group_send)(
-			"chat_printer",
-			{
-				'type': 'changeState',
-				'message': ms
-			})
+		if ms['type'] == 'stateChangeCommand':
+			async_to_sync(self.channel_layer.group_send)(
+				self.GROUP_NAME,
+				{
+					'type': 'changeState',
+					'message': ms
+				})
+			async_to_sync(self.channel_layer.group_send)(
+				"chat_printer",
+				{
+					'type': 'changeState',
+					'message': ms
+				})
     

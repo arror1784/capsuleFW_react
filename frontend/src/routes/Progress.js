@@ -1,9 +1,23 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import './Progress.css';
+
+import Paper from "@material-ui/core/Paper";
+import Grid from "@material-ui/core/Grid";
+import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
+
 
 const URL = ':8000/ws/progress'
 
+
 class Status extends Component {
+
+	constructor(props) {
+		super(props);
+	}
 
 	state = {
 		material: '',
@@ -13,7 +27,7 @@ class Status extends Component {
 		state: 'ready',
 		timeSec: 0,
 		timeMin: 0,
-		progress: 0,
+		progress: 100,
 	}
 	
 	componentDidMount(){
@@ -90,15 +104,51 @@ class Status extends Component {
 		})
 	}
 
+
 	render() {
+
 		return (
-			<div>
-				state : {this.state.state}<br/>
-				time : {this.state.timeMin}min {this.state.timeSec}sec<br/>
-				progress : {this.state.progress}%
-			</div>
+			<Grid container  direction="row" spacing={5}>
+				<Grid item xs={3} >
+					<Paper>
+						<Box height={200}  display="flex" alignItems="center" justifyContent="center" textAlign="left" fontSize="h5.fontSize">
+							<div >
+								state : {this.state.state}<br/>
+								time : {this.state.timeMin}min {this.state.timeSec}sec<br/>
+								progress : {this.state.progress}%
+							</div> 
+						</Box>
+					</Paper>
+				</Grid>
+				<Grid item xs={3} >
+					<Paper>
+						<Box  height={200} display="flex"  justifyContent="center" alignItems="center">
+							<CircularProgress  variant="static" size="30%" value={this.state.progress} />
+						</Box>
+					</Paper>
+				</Grid>
+				<Grid item xs={12}>
+					<Button
+						variant="contained"
+						color="primary"
+						onClick={this.handlePrint}
+						> PAUSE 
+					</Button>
+					<Button
+						variant="contained"
+						color="primary"
+						onClick={this.handlePrint}
+						> PAUSE 
+					</Button>
+				</Grid>
+			</Grid>
+		
+		
 		);
 	}
 }
+
+
+							
 
 export default Status;

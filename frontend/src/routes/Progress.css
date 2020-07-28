@@ -1,0 +1,24 @@
+.horz-two-container {
+    display: flex;
+    flex-direction: row;
+  }
+  .horz-two-container > div{
+    margin: auto;
+    width: 50%;
+    height: 50%;
+    /* width: 100px;
+    height: width; */
+    margin: 10px;
+
+}
+
+.root {
+    flex-grow: 1;
+}
+
+.paper {
+    padding: 8*2;
+    text-align: center;
+    /* height : 100%; */
+    /* color: theme.palette.text.secondary; */
+}

@@ -12,7 +12,7 @@ class Home extends Component {
 	render() {
 		return (
 			<div>
-				home
+				Home
 			</div>
 		);
 	}

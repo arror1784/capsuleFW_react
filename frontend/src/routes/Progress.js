@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ProgressBar from '../components/ProgressBar'
 import axios from 'axios';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import './Progress.css';
@@ -108,40 +109,41 @@ class Status extends Component {
 	render() {
 
 		return (
-			<Grid container  direction="row" spacing={5}>
-				<Grid item xs={3} >
-					<Paper>
-						<Box height={200}  display="flex" alignItems="center" justifyContent="center" textAlign="left" fontSize="h5.fontSize">
-							<div >
-								state : {this.state.state}<br/>
-								time : {this.state.timeMin}min {this.state.timeSec}sec<br/>
-								progress : {this.state.progress}%
-							</div> 
-						</Box>
-					</Paper>
-				</Grid>
-				<Grid item xs={3} >
-					<Paper>
-						<Box  height={200} display="flex"  justifyContent="center" alignItems="center">
-							<CircularProgress  variant="static" size="30%" value={this.state.progress} />
-						</Box>
-					</Paper>
-				</Grid>
-				<Grid item xs={12}>
-					<Button
-						variant="contained"
-						color="primary"
-						onClick={this.handlePrint}
-						> PAUSE 
-					</Button>
-					<Button
-						variant="contained"
-						color="primary"
-						onClick={this.handlePrint}
-						> PAUSE 
-					</Button>
-				</Grid>
-			</Grid>
+			<ProgressBar/>
+			// <Grid container  direction="row" spacing={5}>
+			// 	<Grid item xs={3} >
+			// 		<Paper>
+			// 			<Box height={200}  display="flex" alignItems="center" justifyContent="center" textAlign="left" fontSize="h5.fontSize">
+			// 				<div >
+			// 					state : {this.state.state}<br/>
+			// 					time : {this.state.timeMin}min {this.state.timeSec}sec<br/>
+			// 					progress : {this.state.progress}%
+			// 				</div> 
+			// 			</Box>
+			// 		</Paper>
+			// 	</Grid>
+			// 	<Grid item xs={3} >
+			// 		<Paper>
+			// 			<Box  height={200} display="flex"  justifyContent="center" alignItems="center">
+			// 				<CircularProgress  variant="static" size="30%" value={this.state.progress} />
+			// 			</Box>
+			// 		</Paper>
+			// 	</Grid>
+			// 	<Grid item xs={12}>
+			// 		<Button
+			// 			variant="contained"
+			// 			color="primary"
+			// 			onClick={this.handlePrint}
+			// 			> PAUSE 
+			// 		</Button>
+			// 		<Button
+			// 			variant="contained"
+			// 			color="primary"
+			// 			onClick={this.handlePrint}
+			// 			> PAUSE 
+			// 		</Button>
+			// 	</Grid>
+			// </Grid>
 		
 		
 		);

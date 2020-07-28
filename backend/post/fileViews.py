@@ -19,26 +19,20 @@ def file(request):
 	if request.method == 'POST':
 		form = FilePrintingForm(request.POST,request.FILES)
 		if form.is_valid():
-		
-			# if not request.FILES['file'].name.endswith(".zip"):
-			# 	return HttpResponse(status=400)
-
 			form.save()
 			
 			FP = FilePrinting.objects.order_by('create_at').last()
-
-			
-
+			directoryName = request.POST['folderName']
 			state, is_follow = PrintingState.objects.get_or_create(id=1)
-			state.printing_name = os.path.splitext(request.FILES['file'].name)[0]
-			state.printing_file_name = os.path.splitext(FP.file.name)[0]
+
+			state.printing_name = directoryName
 			state.save()
 			
 			filePath = settings.MEDIA_ROOT + '/' + FP.file.name
-			folderPath = settings.MEDIA_ROOT + '/' + os.path.splitext(FP.file.name)[0] + '_dir'
+			folderPath = settings.MEDIA_ROOT + '/' + directoryName + '_dir'
+			state.printing_folder_name = folderPath
 
 			os.mkdir(folderPath)
-					
 			imagezip=zipfile.ZipFile(filePath)
 			imagezip.extractall(folderPath)
 			

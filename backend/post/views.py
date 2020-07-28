@@ -49,7 +49,8 @@ def startPrint(request):
 	message["type"] = "printCommand"
 	message["command"] = "start"
 	message["printing_name"] = state.printing_name
-	message["folder_path"] = settings.MEDIA_ROOT + '/' + state.printing_file_name
+	#THIS IS NOT FOLDER NAME!!!
+	message["folder_path"] = state.printing_folder_name
 	message["material"] = state.material
 
 	channel_layer = get_channel_layer()

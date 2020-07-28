@@ -10,8 +10,8 @@ class FilePrintingAdmin(admin.ModelAdmin):
 
 @admin.register(PrintingState)
 class PrintingStateAdmin(admin.ModelAdmin):
-	list_display = ['id', 'state', 'material', 'printing_name','printing_file_name', 'print_setting_name', 'total_layer', 'current_layer']
-	list_display_links = ['id', 'state', 'material', 'printing_name','printing_file_name', 'print_setting_name', 'total_layer', 'current_layer']
+	list_display = ['id', 'state', 'material', 'printing_name','printing_folder_name', 'print_setting_name', 'total_layer', 'current_layer']
+	list_display_links = ['id', 'state', 'material', 'printing_name','printing_folder_name', 'print_setting_name', 'total_layer', 'current_layer']
 #admin.site.register(Post)
 admin.site.register(FilePrinting,FilePrintingAdmin)
 admin.site.register(Material)

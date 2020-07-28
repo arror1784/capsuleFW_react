@@ -35,7 +35,7 @@ class PrintingState(models.Model):
 	# material = models.ForeignKey('Material',models.SET_NULL,null=True,blank=True)
 	material = models.CharField(max_length=50,null=True,blank=True)
 	printing_name = models.CharField(max_length=50,null=True,blank=True)
-	printing_file_name = models.CharField(max_length=50,null=True,blank=True)
+	printing_folder_name = models.CharField(max_length=50,null=True,blank=True)
 
 class PrinterSetting(models.Model):
 	height_offset = models.IntegerField()

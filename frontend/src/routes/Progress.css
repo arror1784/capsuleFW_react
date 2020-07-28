@@ -22,3 +22,10 @@
     /* height : 100%; */
     /* color: theme.palette.text.secondary; */
 }
+
+
+
+.test-root > * 
+{
+    margin: 8px;
+}

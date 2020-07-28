@@ -8,6 +8,11 @@ var  fs = require('fs');
 
 class FileUpload extends Component {
 
+	constructor(props)
+	{
+		super(props)
+	}
+
 	state = {
 		selectedFile: null,
 	}
@@ -20,7 +25,10 @@ class FileUpload extends Component {
 			alert('file select required')
 			return
 		}
-		console.log(e.target.value)
+		//get filename
+		let pathString = first.webkitRelativePath.replace(/\\/g,"/");
+		let pathTokens = pathString.split( '/' );
+		let directoryName = pathTokens[0];
 		//zip files...
 		var zip = new JSZip();
 		for(let i = 0; i < e.target.files.length; ++i)
@@ -29,11 +37,12 @@ class FileUpload extends Component {
 			zip.file(file.name, file, {binary: true});
 		}
 
-		zip.generateAsync({type:"blob"}).then((blob) => {
+		zip.generateAsync({type:"blob"}).then( (blob) => {
 			let formData = new FormData();
 			formData.append('file', blob);
+			formData.append('folderName', directoryName);
 			axios.post("/api/file/upload/", formData).then(res => {
-				this.props.onFileUploaded(first.name)	
+				this.props.onFileUploaded(directoryName);
 			}).catch(err => {
 				alert('file upload fail')
 			})
@@ -46,7 +55,6 @@ class FileUpload extends Component {
 			<div>
 				<CSRFToken />
 				<FileUploaderBttn handleFile={this.handleFileInput}></FileUploaderBttn>
-				{/* <input type="file" name="file"  webkitdirectory=""  onChange={e => this.handleFileInput(e)}/> */}
 			</div>
 		);
 	}

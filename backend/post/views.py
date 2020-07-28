@@ -28,8 +28,11 @@ def get_csrf(request):
 def printerState(request):
 	dic = {}
 
-	dic["state"] = "ready"
-	return JsonResponse(dic)	
+	state,is_follow = PrintingState.objects.get_or_create(id=1)
+
+	dic["state"] = state.state
+
+	return JsonResponse(dic)
 
 def startPrint(request):
 	if request.method != 'POST':
@@ -56,7 +59,7 @@ def startPrint(request):
 	channel_layer = get_channel_layer()
 	async_to_sync(channel_layer.group_send)(
 			"chat_printer" 
-			,{"type": "sendToPrinter","message": message})	
+			,{"type": "sendToPrinter","message": message})
 	
 	#4. response 404 or 200
 	return HttpResponse(status=200)

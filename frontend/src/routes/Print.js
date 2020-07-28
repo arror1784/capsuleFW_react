@@ -65,9 +65,9 @@ class Print extends Component {
 				alert('timeout')
 			}
 		}
-		this.ws.onerror = () => {
+		this.ws.onerror = (err) => {
 			this.props.history.push('/')
-			alert('can not access this page')
+			alert('can not access this page',err)
 		}
 		this.ws.onmessage = (evt) => {
 			const message = JSON.parse(evt.data)
@@ -91,7 +91,7 @@ class Print extends Component {
 		})
 	}
 	handleReset = () => {
-		this.setState({	activeStep: 0 })
+		this.setState({	activeStep: 0, selectedMaterial:null})
 	}
 	handleFileUpload = (filename) => {
 		this.setState({
@@ -102,17 +102,8 @@ class Print extends Component {
 		.then(response => {
 			var list=[]
 			response.data.forEach((item,index,array)=> {
-				list.push(item["M_id"])
+				list.push(item)
 			})
-			if(list.includes('custom_resin')){
-				this.setState({
-					isCustomResin: true
-				})
-			}else{
-				this.setState({
-					isCustomResin: false
-				})
-			}
 			this.setState({
 				materialList: list,
 			})

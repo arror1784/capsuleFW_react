@@ -30,43 +30,34 @@ class PrinterConsumer(WebsocketConsumer):
 
 	def receive(self, text_data):
 		ms = json.loads(text_data)
+		state, is_follow = PrintingState.objects.get_or_create(id=1)
+
 		print(ms)
-		if ms['type'] == 'progress':
+		if ms['type'] == 'progressUpdate':
 			async_to_sync(self.channel_layer.group_send)(
 				"chat_progress",
 				{
 					'type': 'updateProgress',
 					'message': ms
 				})
-		else:
-    	# elif ms['type'] == 'start':
+		# else:
+		elif ms['type'] == 'stateChangeCommand':
+			if ms['type'] == 'start':
+				state.state = PrintingState.PRINT
+			elif ms['type'] == 'pauseStart':
+				state.state = PrintingState.PAUSE_START
+			elif ms['type'] == 'pauseFinish':
+				state.state = PrintingState.PAUSE
+			elif ms['type'] == 'finish':
+				state.state = PrintingState.READY
 			async_to_sync(self.channel_layer.group_send)(
 				"chat_progress",
 				{
 					'type': 'changeState',
 					'message': ms
 				})
-		# elif ms['type'] == 'pauseStart':
-		# 	async_to_sync(self.channel_layer.group_send)(
-		# 		"chat_progress",
-		# 		{
-		# 			'type': 'changeState',
-		# 			'message': ms
-		# 		})
-		# elif ms['type'] == 'pauseFinish':
-		# 	async_to_sync(self.channel_layer.group_send)(
-		# 		"chat_progress",
-		# 		{
-		# 			'type': 'changeState',
-		# 			'message': ms
-		# 		})
-		# elif ms['type'] == 'finish':
-		# 	async_to_sync(self.channel_layer.group_send)(
-		# 		"chat_progress",
-		# 		{
-		# 			'type': 'changeState',
-		# 			'message': ms
-		# 		})
+		
+		state.save()
 
 	def sendToPrinter(self,event):
 		self.send(json.dumps(event['message']))
@@ -75,9 +66,9 @@ class PrinterConsumer(WebsocketConsumer):
 		self.send(json.dumps(event['message']))
 	
 class PrintSettingConsumer(WebsocketConsumer): #check for setting
-	
+
 	GROUP_NAME = "print_setting"
-	TIME_OUT_MIN = 3
+	TIME_OUT_MIN = 1
 
 	def connect(self):
 		
@@ -109,12 +100,13 @@ class PrintSettingConsumer(WebsocketConsumer): #check for setting
 	def disconnect(self, close_code):
 		
 		state, is_follow = PrintingState.objects.get_or_create(id=1)
+		print("disconect")
 		print("print_setting_name",state.print_setting_name)
-		print("channel_name",self.channel_name)
+		print("channel_name      ",self.channel_name)
 		if state.print_setting_name == self.channel_name:
+			print("compare true print_setting_name and channel_name")
 			state.print_setting_name = None
-			state.save()
-
+		state.save()
 
 	def updateTimeout(self,event):
 		self.sched.remove_job("timeout")

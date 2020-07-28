@@ -45,7 +45,7 @@ class FileUpload extends Component {
 				this.props.onFileUploaded(directoryName);
 			}).catch(err => {
 				alert('file upload fail')
-		})
+			})
 		});
 		
 	}

@@ -38,16 +38,53 @@ class PrinterConsumer(WebsocketConsumer):
 					'type': 'updateProgress',
 					'message': ms
 				})
+		else:
+    	# elif ms['type'] == 'start':
+			async_to_sync(self.channel_layer.group_send)(
+				"chat_progress",
+				{
+					'type': 'changeState',
+					'message': ms
+				})
+		# elif ms['type'] == 'pauseStart':
+		# 	async_to_sync(self.channel_layer.group_send)(
+		# 		"chat_progress",
+		# 		{
+		# 			'type': 'changeState',
+		# 			'message': ms
+		# 		})
+		# elif ms['type'] == 'pauseFinish':
+		# 	async_to_sync(self.channel_layer.group_send)(
+		# 		"chat_progress",
+		# 		{
+		# 			'type': 'changeState',
+		# 			'message': ms
+		# 		})
+		# elif ms['type'] == 'finish':
+		# 	async_to_sync(self.channel_layer.group_send)(
+		# 		"chat_progress",
+		# 		{
+		# 			'type': 'changeState',
+		# 			'message': ms
+		# 		})
 
 	def sendToPrinter(self,event):
 		self.send(json.dumps(event['message']))
+
+	def changeState(self,event):
+		self.send(json.dumps(event['message']))
 	
 class PrintSettingConsumer(WebsocketConsumer): #check for setting
+	
 	GROUP_NAME = "print_setting"
+	TIME_OUT_MIN = 3
+
 	def connect(self):
 		
 		state, is_follow = PrintingState.objects.get_or_create(id=1)		
 		if state.print_setting_name != None:
+			self.close()
+		elif state.state != PrintingState.READY:
 			self.close()
 		else:
 			state.print_setting_name = self.channel_name
@@ -56,7 +93,7 @@ class PrintSettingConsumer(WebsocketConsumer): #check for setting
 		self.sched = BackgroundScheduler()
 		self.sched.start()
 
-		self.sched.add_job(self.timeout, 'interval', minutes=1,id="timeout")
+		self.sched.add_job(self.timeout, 'interval', minutes=self.TIME_OUT_MIN,id="timeout")
 
 		async_to_sync(self.channel_layer.group_add)(
 			self.GROUP_NAME,
@@ -72,18 +109,16 @@ class PrintSettingConsumer(WebsocketConsumer): #check for setting
 	def disconnect(self, close_code):
 		
 		state, is_follow = PrintingState.objects.get_or_create(id=1)
+		print("print_setting_name",state.print_setting_name)
+		print("channel_name",self.channel_name)
 		if state.print_setting_name == self.channel_name:
 			state.print_setting_name = None
 			state.save()
-		
-		async_to_sync(self.channel_layer.group_discard)(
-			self.GROUP_NAME,
-			self.channel_name
-		)
+
 
 	def updateTimeout(self,event):
 		self.sched.remove_job("timeout")
-		self.sched.add_job(self.timeout, 'interval', minutes=1,id="timeout")
+		self.sched.add_job(self.timeout, 'interval', minutes=self.TIME_OUT_MIN,id="timeout")
 
 	def timeout(self):
 		self.sched.remove_job("timeout")

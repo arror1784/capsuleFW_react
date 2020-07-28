@@ -13,24 +13,27 @@ class PrintingState(models.Model):
 	READY = 'ready'
 	PRINT = 'print'
 	PAUSE = 'pause'
-	SETTING = 'SETTING'
+	PAUSE_START = 'pause_start'
+	SETTING = 'setting'
 
 	STATE_LIST = [
 		(READY, 'ready'),
 		(PRINT, 'print'),
 		(PAUSE, 'pause'),
+		(PAUSE_START, 'pause_start'),
 		(SETTING, 'setting'),
 	]
 
 	state = models.CharField(
 		choices=STATE_LIST,
-		max_length=7,
+		max_length=11,
 		default=READY
 	)
 	print_setting_name = models.CharField(max_length=30,null=True,blank=True)
 	total_layer = models.IntegerField(default=0)
 	current_layer = models.IntegerField(default=0)
-	material = models.ForeignKey('Material',models.SET_NULL,null=True,blank=True)
+	# material = models.ForeignKey('Material',models.SET_NULL,null=True,blank=True)
+	material = models.CharField(max_length=50,null=True,blank=True)
 	printing_name = models.CharField(max_length=50,null=True,blank=True)
 	printing_file_name = models.CharField(max_length=50,null=True,blank=True)
 

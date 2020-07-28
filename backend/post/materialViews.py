@@ -13,25 +13,57 @@ from .models import Post,Material,PrintingState
 import os,shutil,json,time,zipfile
 from pathlib import Path
 
+from django.conf import settings
 
-def materialList(requet):
-	materials = Material.objects.values("M_id")
-	return JsonResponse(list(materials),safe=False)
+def materialList(request):
+
+	Ldata = []
+	try:
+		with open(settings.PRINTER_SETTING_PATH,'r') as json_file:
+			json_data = json.load(json_file)
+			Ldata = json_data["material_list"]
+	except IOError as e:
+		print("I/O error",e)
+		return HttpResponse(status=404)
+		
+	return JsonResponse(Ldata,safe=False)
 
 def materialInfo(request,materialName):
-	material = get_object_or_404(Material,pk=materialName)
     
-	material_dic = model_to_dict(material)
+	try:
+		with open(settings.RESIN_PATH + "/" + materialName + ".json") as json_file:
+			json_data = json.load(json_file)
+	except IOError as e:
+		print("I/O error",e)
+		return HttpResponse(status=404)
 
-	return JsonResponse(material_dic)
+	# material = get_object_or_404(Material,pk=materialName)
+	# material_dic = model_to_dict(material)
+
+	return JsonResponse(json_data)
 
 def materialSelect(request,materialName):
     
-	selectedMaterial = get_object_or_404(Material,M_id=materialName)
+	# selectedMaterial = get_object_or_404(Material,M_id=materialName)
+	Ldata = []
+
+	try:
+		with open(settings.PRINTER_SETTING_PATH,'r') as json_file:
+			json_data = json.load(json_file)
+			Ldata = json_data["material_list"]
+			if materialName in Ldata:
+				print("there is material",materialName)
+			else:
+				print("there is no material",materialName)
+				return HttpResponse(status=404)
+	except IOError as e:
+		print("I/O error",e)
+		return HttpResponse(status=404)
+	
 	state, is_follow = PrintingState.objects.get_or_create(id=1)
-    
-	state.material = selectedMaterial
-    
+
+	state.material = materialName
+	
 	state.save()
 
 	channel_layer = get_channel_layer()

@@ -23,10 +23,11 @@ class Status extends Component {
 		material: '',
 		fileName: '',
 		layerHeight: 0,
-		totalDuration: 0,
+		totalSec: 0,
+		totalMin: 0,
 		intervalID: null,
 		startTime: 0,
-		progress: 15,
+		progress: 25,
 		state: 'ready',
 		timeSec: 0,
 		timeMin: 0,
@@ -116,7 +117,7 @@ class Status extends Component {
 		{
 			case "pause":
 				buttons =
-				<div className ="button-container" >
+				<div className={styles["button-container"]} >
 					<Button variant="contained" color="primary">Resume</Button>
 					<Button variant="contained" color="secondary">Quit</Button>
 				</div>
@@ -125,14 +126,14 @@ class Status extends Component {
 				break;
 			case "pause_start":
 				buttons =
-				<div className ="button-container" >
+				<div className={styles["button-container"]} >
 					<Button variant="contained" disabled>Pausing...</Button>
 				</div>	
 				mainStr = "Pausing... " +this.state.progress + "%" ;
 				break;
 			case "print":
 				buttons =
-				<div className ="button-container">
+				<div className={styles["button-container"]} >
 					<Button variant="contained" color="primary">Pause</Button>
 				</div>	
 				mainStr = "Printing... " +this.state.progress + "%" ;
@@ -145,17 +146,15 @@ class Status extends Component {
 
 
 		return (
-			<div className="progress-container">
+			<div className={styles["progress-container"]}>
 				<h1>{mainStr}</h1>
-				<div className="text-container">
-					<p>{mainStr}</p>
-					<p>{mainStr}</p>
-
+				<div className={styles["text-container"]}>
+					<p>Model: {this.state.fileName}</p>
+					<p>Material: {this.state.material}</p>
+					<p>Layer height: {this.state.layerHeight}mm</p>
+					<p>Elapsed time: {this.state.timeMin}m {this.state.timeSec}s</p>
+					<p>Total printing time: {this.state.totalMin}m {this.state.totalSec}s</p>
 				</div>
-
-					{/* <h5>{mainStr}</h5> */}
-
-
 				<section>
 					<article>
 						<ProgressBar value={this.state.progress}/>

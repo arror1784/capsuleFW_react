@@ -1,14 +1,13 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
+
 import ProgressBar from '../components/ProgressBar'
 import axios from 'axios';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import './Progress.css';
+import styles from './Progress.module.scss';
 
-import Paper from "@material-ui/core/Paper";
-import Grid from "@material-ui/core/Grid";
-import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+
+
 
 
 const URL = ':8000/ws/progress'
@@ -22,13 +21,15 @@ class Status extends Component {
 
 	state = {
 		material: '',
+		fileName: '',
+		layerHeight: 0,
+		totalDuration: 0,
 		intervalID: null,
 		startTime: 0,
-
+		progress: 15,
 		state: 'ready',
 		timeSec: 0,
 		timeMin: 0,
-		progress: 100,
 	}
 	
 	componentDidMount(){
@@ -85,7 +86,7 @@ class Status extends Component {
 		axios.get('/api/state')
         .then(response => {
 			this.setState({
-				satet: response.data.state
+				state: response.data.state
 			})
         })
 	}
@@ -108,49 +109,64 @@ class Status extends Component {
 
 	render() {
 
+		let buttons;
+		let mainStr;
+
+		switch(this.state.state)
+		{
+			case "pause":
+				buttons =
+				<div className ="button-container" >
+					<Button variant="contained" color="primary">Resume</Button>
+					<Button variant="contained" color="secondary">Quit</Button>
+				</div>
+				mainStr = "Paused... " +this.state.progress + "%" ;
+
+				break;
+			case "pause_start":
+				buttons =
+				<div className ="button-container" >
+					<Button variant="contained" disabled>Pausing...</Button>
+				</div>	
+				mainStr = "Pausing... " +this.state.progress + "%" ;
+				break;
+			case "print":
+				buttons =
+				<div className ="button-container">
+					<Button variant="contained" color="primary">Pause</Button>
+				</div>	
+				mainStr = "Printing... " +this.state.progress + "%" ;
+				break;
+			default:
+				mainStr = "Ready";
+				
+		}
+
+
+
 		return (
-			<ProgressBar/>
-			// <Grid container  direction="row" spacing={5}>
-			// 	<Grid item xs={3} >
-			// 		<Paper>
-			// 			<Box height={200}  display="flex" alignItems="center" justifyContent="center" textAlign="left" fontSize="h5.fontSize">
-			// 				<div >
-			// 					state : {this.state.state}<br/>
-			// 					time : {this.state.timeMin}min {this.state.timeSec}sec<br/>
-			// 					progress : {this.state.progress}%
-			// 				</div> 
-			// 			</Box>
-			// 		</Paper>
-			// 	</Grid>
-			// 	<Grid item xs={3} >
-			// 		<Paper>
-			// 			<Box  height={200} display="flex"  justifyContent="center" alignItems="center">
-			// 				<CircularProgress  variant="static" size="30%" value={this.state.progress} />
-			// 			</Box>
-			// 		</Paper>
-			// 	</Grid>
-			// 	<Grid item xs={12}>
-			// 		<Button
-			// 			variant="contained"
-			// 			color="primary"
-			// 			onClick={this.handlePrint}
-			// 			> PAUSE 
-			// 		</Button>
-			// 		<Button
-			// 			variant="contained"
-			// 			color="primary"
-			// 			onClick={this.handlePrint}
-			// 			> PAUSE 
-			// 		</Button>
-			// 	</Grid>
-			// </Grid>
-		
-		
+			<div className="progress-container">
+				<h1>{mainStr}</h1>
+				<div className="text-container">
+					<p>{mainStr}</p>
+					<p>{mainStr}</p>
+
+				</div>
+
+					{/* <h5>{mainStr}</h5> */}
+
+
+				<section>
+					<article>
+						<ProgressBar value={this.state.progress}/>
+					</article>
+				</section>
+				{buttons}
+			</div>
 		);
 	}
 }
 
 
-							
 
 export default Status;

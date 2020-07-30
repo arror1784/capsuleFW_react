@@ -1,0 +1,31 @@
+
+$gray: #444;
+
+
+.progress-container
+{
+    z-index: 1;
+    display: flex;
+    overflow: hidden;
+    flex-direction: column;
+
+    justify-content: center;
+
+    margin-bottom: 4em;
+}
+
+.text-container{
+    width: 18%;
+    align-self: center;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.text-container > *{
+    margin: 4px !important;
+
+}
+.button-container > *{
+    margin: 8px !important;
+}

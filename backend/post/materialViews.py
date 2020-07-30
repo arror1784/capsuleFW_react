@@ -46,7 +46,7 @@ def materialSelect(request,materialName):
     
 	# selectedMaterial = get_object_or_404(Material,M_id=materialName)
 	Ldata = []
-
+	
 	try:
 		with open(settings.PRINTER_SETTING_PATH,'r') as json_file:
 			json_data = json.load(json_file)

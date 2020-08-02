@@ -17,6 +17,7 @@ from post.forms import FilePrintingForm
 
 import os,shutil,json,time,zipfile
 from pathlib import Path
+from django.views.decorators.http import require_GET, require_POST
 
 def test(request):
 	print(request.body)
@@ -34,9 +35,8 @@ def printerState(request):
 
 	return JsonResponse(dic)
 
+@require_POST
 def startPrint(request):
-	if request.method != 'POST':
-		return HttpResponse(status=404)
 	#check printer state
 	state,is_follow = PrintingState.objects.get_or_create(id=1)
 	if state.state != PrintingState.READY:
@@ -55,6 +55,64 @@ def startPrint(request):
 	#THIS IS NOT FOLDER NAME!!!
 	message["folder_path"] = state.printing_folder_name
 	message["material"] = state.material
+
+	channel_layer = get_channel_layer()
+	async_to_sync(channel_layer.group_send)(
+			"chat_printer" 
+			,{"type": "sendToPrinter","message": message})
+	
+	#4. response 404 or 200
+	return HttpResponse(status=200)
+
+
+@require_POST
+def resume(request):
+	#check printer state
+	state,is_follow = PrintingState.objects.get_or_create(id=1)
+	if state.state != PrintingState.PAUSE:
+		return HttpResponse(status=400)
+
+	message = {}
+	message["type"] = "printCommand"
+	message["command"] = "start"
+
+	channel_layer = get_channel_layer()
+	async_to_sync(channel_layer.group_send)(
+			"chat_printer" 
+			,{"type": "sendToPrinter","message": message})
+	
+	#4. response 404 or 200
+	return HttpResponse(status=200)
+
+@require_POST
+def pause(request):
+	#check printer state
+	state,is_follow = PrintingState.objects.get_or_create(id=1)
+	if state.state != PrintingState.PRINT:
+		return HttpResponse(status=400)
+
+	message = {}
+	message["type"] = "printCommand"
+	message["command"] = "pause"
+
+	channel_layer = get_channel_layer()
+	async_to_sync(channel_layer.group_send)(
+			"chat_printer" 
+			,{"type": "sendToPrinter","message": message})
+	
+	#4. response 404 or 200
+	return HttpResponse(status=200)
+
+@require_POST
+def quit(request):
+	#check printer state
+	state,is_follow = PrintingState.objects.get_or_create(id=1)
+	if state.state != PrintingState.PAUSE:
+		return HttpResponse(status=400)
+
+	message = {}
+	message["type"] = "printCommand"
+	message["command"] = "quit"
 
 	channel_layer = get_channel_layer()
 	async_to_sync(channel_layer.group_send)(

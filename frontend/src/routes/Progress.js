@@ -12,6 +12,10 @@ import Typography from '@material-ui/core/Typography';
 
 const URL = ':8000/ws/progress'
 
+function toStrTime(date)
+{
+	return `${date.getMinutes()}m ${date.getSeconds()}s`;
+}
 
 class Status extends Component {
 
@@ -23,14 +27,12 @@ class Status extends Component {
 		material: '',
 		fileName: '',
 		layerHeight: 0,
-		totalSec: 0,
-		totalMin: 0,
+		totalTime: 0,
 		intervalID: null,
 		startTime: 0,
 		progress: 25,
 		state: 'ready',
-		timeSec: 0,
-		timeMin: 0,
+		elapsedTime: 0,
 	}
 	
 	componentDidMount(){
@@ -41,44 +43,59 @@ class Status extends Component {
 		}
 		this.ws.onmessage = evt => {
 			const message = JSON.parse(evt.data)
-			if(message.method === "start"){
-				this.setState({
-					state: "print",
-					timeSec: 0,
-					timeMin: 0,
-					progress: 0
-				})
-			}else if(message.method === "setTimerOnoff"){
-				if(message.onOff === true){
-					var intervalId = setInterval(this.tick, 100);
+			switch(message.method)
+			{
+				case "start":
 					this.setState({
-						intervalID: intervalId
+						state: "print",
+						totalTime: 0,
+						progress: 0
 					})
-				}else if(message.onOff === false){
+					break;
+				case "pause":
+					this.setState({
+						state: "pause"
+					})
+					break;
+				case "finish":
+					this.setState({
+						state: "ready"
+					})
 					clearInterval(this.state.intervalID);
-				}
-			}else if(message.method === "setTimerTime"){
-				var date = new Date()
-				this.setState({
-					startTime: date.getTime()
-				})
-			}else if(message.method === "pause"){
-				this.setState({
-					state: "pause"
-				})
-			}else if(message.method === "finish"){
-				this.setState({
-					state: "ready"
-				})
-				clearInterval(this.state.intervalID);
-			}else if(message.method === "resume"){
-				this.setState({
-					state: "print"
-				})
-			}else if(message.method === "update"){
-				this.setState({
-					progress: message.progress
-				})
+					break;
+				case "resume":
+					this.setState({
+						state: "print"
+					})
+					break;
+				case "update":
+					this.setState({
+						progress: message.progress
+					})
+					break;
+				case "setTimerTime":
+					var date = new Date()
+					this.setState({
+						startTime: date.getTime()
+					})
+					break;
+				case "setTotalTime":
+					this.setState({
+						totalTime: message.date
+					})
+					break;
+				case "enableTimer":
+					if(message.onOff === true){
+						var intervalId = setInterval(this.tick, 100);
+						this.setState({
+							intervalID: intervalId
+						})
+					}else if(message.onOff === false){
+						clearInterval(this.state.intervalID);
+					}
+					break;
+				default:
+					break;
 			}
 		}
 		this.ws.onclose = () => {
@@ -102,8 +119,30 @@ class Status extends Component {
 		var currentDate = new Date(currentDuration)
 
 		this.setState({
-			timeSec: currentDate.getSeconds(),
-			timeMin: currentDate.getMinutes()
+			elapsedTime: currentDate
+		})
+	}
+	handlePause = () => {
+		axios.post("/api/pause/").then(res => {
+			alert('sucess')
+		}).catch(err => {
+			alert('pause fail')
+		})
+	}
+
+	handleResume = () => {
+		axios.post("/api/resume/").then(res => {
+			alert('sucess')
+		}).catch(err => {
+			alert('pause fail')
+		})
+	}
+
+	handleQuit = () => {
+		axios.post("/api/quit/").then(res => {
+			alert('sucess')
+		}).catch(err => {
+			alert('pause fail')
 		})
 	}
 
@@ -118,8 +157,8 @@ class Status extends Component {
 			case "pause":
 				buttons =
 				<div className={styles["button-container"]} >
-					<Button variant="contained" color="primary">Resume</Button>
-					<Button variant="contained" color="secondary">Quit</Button>
+					<Button variant="contained" onClick={this.handleResume}  color="primary">Resume</Button>
+					<Button variant="contained" onClick={this.handleQuit} color="secondary">Quit</Button>
 				</div>
 				mainStr = "Paused... " +this.state.progress + "%" ;
 
@@ -134,7 +173,7 @@ class Status extends Component {
 			case "print":
 				buttons =
 				<div className={styles["button-container"]} >
-					<Button variant="contained" color="primary">Pause</Button>
+					<Button variant="contained" onClick={this.handlePause} color="primary">Pause</Button>
 				</div>	
 				mainStr = "Printing... " +this.state.progress + "%" ;
 				break;
@@ -152,8 +191,8 @@ class Status extends Component {
 					<p>Model: {this.state.fileName}</p>
 					<p>Material: {this.state.material}</p>
 					<p>Layer height: {this.state.layerHeight}mm</p>
-					<p>Elapsed time: {this.state.timeMin}m {this.state.timeSec}s</p>
-					<p>Total printing time: {this.state.totalMin}m {this.state.totalSec}s</p>
+					<p>Elapsed time: {toStrTime(this.state.elapsedTime)}</p>
+					<p>Total printing time: {toStrTime(this.state.totalTime)}</p>
 				</div>
 				<section>
 					<article>

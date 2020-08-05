@@ -1,16 +1,9 @@
 import React, { Component, useState } from 'react';
-
 import ProgressBar from '../components/ProgressBar'
-import axios from 'axios';
 import styles from './Progress.module.scss';
-
 import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
+import wsMan from '../WsManager'
 
-
-
-
-const URL = ':8000/ws/progress'
 
 function toStrTime(date)
 {
@@ -36,81 +29,15 @@ class Status extends Component {
 	}
 	
 	componentDidMount(){
-		this.ws = new WebSocket('ws://' + window.location.hostname + URL)
-		
-		this.ws.onopen = () => {
-			console.log('connected')	
-		}
-		this.ws.onmessage = evt => {
-			const message = JSON.parse(evt.data)
-			switch(message.method)
-			{
-				case "start":
-					this.setState({
-						state: "print",
-						totalTime: 0,
-						progress: 0
-					})
-					break;
-				case "pause":
-					this.setState({
-						state: "pause"
-					})
-					break;
-				case "finish":
-					this.setState({
-						state: "ready"
-					})
-					clearInterval(this.state.intervalID);
-					break;
-				case "resume":
-					this.setState({
-						state: "print"
-					})
-					break;
-				case "update":
-					this.setState({
-						progress: message.progress
-					})
-					break;
-				case "setTimerTime":
-					var date = new Date()
-					this.setState({
-						startTime: date.getTime()
-					})
-					break;
-				case "setTotalTime":
-					this.setState({
-						totalTime: message.date
-					})
-					break;
-				case "enableTimer":
-					if(message.onOff === true){
-						var intervalId = setInterval(this.tick, 100);
-						this.setState({
-							intervalID: intervalId
-						})
-					}else if(message.onOff === false){
-						clearInterval(this.state.intervalID);
-					}
-					break;
-				default:
-					break;
-			}
-		}
-		this.ws.onclose = () => {
-			console.log("disconnected")
-		}
-		axios.get('/api/state')
-        .then(response => {
-			this.setState({
-				state: response.data.state
-			})
-        })
+		wsMan.ws.addEventListener("message", this.handleWs);
+		wsMan.sendJson({
+			method: 'printInfo'
+		});
+
 	}
 
 	componentWillUnmount(){
-		this.ws.close()
+		wsMan.ws.removeEventListener("message", this.handleWs);
 	}
 	
 	tick = () => {
@@ -123,35 +50,98 @@ class Status extends Component {
 		})
 	}
 	handlePause = () => {
-		axios.post("/api/pause/").then(res => {
-			alert('sucess')
-		}).catch(err => {
-			alert('pause fail')
-		})
+		wsMan.sendJson({
+			method: 'changeState',
+			arg: 'pause'
+		});
 	}
 
 	handleResume = () => {
-		axios.post("/api/resume/").then(res => {
-			alert('sucess')
-		}).catch(err => {
-			alert('pause fail')
-		})
+		wsMan.sendJson({
+			method: 'changeState',
+			arg: 'resume'
+		});
 	}
 
 	handleQuit = () => {
-		axios.post("/api/quit/").then(res => {
-			alert('sucess')
-		}).catch(err => {
-			alert('pause fail')
-		})
+		wsMan.sendJson({
+			method: 'changeState',
+			arg: 'quit'
+		});
+	}
+
+	handleWs = (evt) => {
+		const message = JSON.parse(evt.data)
+		let args = message.arg;
+		switch(message.method)
+		{
+			case "changeState":
+				switch(args)
+				{
+					case "start":
+						this.setState({
+							state: "print",
+							totalTime: 0,
+							progress: 0
+						})
+						break;
+					case "pause":
+						this.setState({
+							state: "pause"
+						})
+						break;
+					case "finish":
+						this.setState({
+							state: "ready"
+						})
+						clearInterval(this.state.intervalID);
+						break;
+					case "resume":
+						this.setState({
+							state: "print"
+						})
+						break;
+					default:
+						break;
+				}
+				break;
+			case "printInfo":
+				this.setState({
+					material: args.material,
+					fileName: args.fileName,
+					layerHeight: args.layerHeight,
+					startTime: args.startTime,
+				})
+				break;
+			case "updateProgress":
+				this.setState({
+					progress: message.progress
+				})
+				break;
+			case "setTotalTime":
+				this.setState({
+					totalTime: message.date
+				})
+				break;
+			case "enableTimer":
+				if(message.onOff === true){
+					var intervalId = setInterval(this.tick, 100);
+					this.setState({
+						intervalID: intervalId
+					})
+				}else if(message.onOff === false){
+					clearInterval(this.state.intervalID);
+				}
+				break;
+			default:
+				break;
+		}			
 	}
 
 
 	render() {
-
 		let buttons;
 		let mainStr;
-
 		switch(this.state.state)
 		{
 			case "pause":
@@ -181,8 +171,6 @@ class Status extends Component {
 				mainStr = "Ready";
 				
 		}
-
-
 
 		return (
 			<div className={styles["progress-container"]}>

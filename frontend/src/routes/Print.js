@@ -7,11 +7,9 @@ import StepLabel from '@material-ui/core/StepLabel';
 import StepContent from '@material-ui/core/StepContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-
-import axios from 'axios';
-
 import FileUpload from '../components/FileUpload';
 import MaterialSelect from '../components/MaterialSelect';
+import wsMan from '../WsManager'
 
 const styles = (theme) => ({
 	root: {
@@ -29,17 +27,24 @@ const styles = (theme) => ({
 	},
 });
 
+const  stepsMsg = ['Select Print File', 'Choose Material', 'Print'];
+const initState ={
+	selectedFilename: "",
+	selectedMaterial: null,
+	materialList: ["--------------------"],
+	printFiles: null,
+	activeStep: 0,
+}
+
+const steps ={
+	FILE: 0,
+	MATR: 1,
+	PRNT: 2
+}
+
 class Print extends Component {
 
-	state = {
-		selectedFilename: "",
-		selectedMaterial: null,
-		selected: [true,true],
-		materialList: ["--------------------"],
-		activeStep: 0,
-		steps: ['Select Print File', 'Choose Material', 'Print'],
-		socketName: "",
-	}
+	state = initState;
 	getStepContent(step) {
 		switch (step) {
 			case 0:
@@ -55,65 +60,66 @@ class Print extends Component {
 				return "no more step";
 		}
 	}
-	componentDidMount(){
-		this.ws = new WebSocket('ws://' + window.location.hostname + ':8000/ws/setting')
 
-		this.ws.onopen = () => { console.log('connected') }
-		this.ws.onclose = (event) => { 
-			if(event.code === 4100){
-				this.props.history.push('/')
-				alert('timeout')
-			}
-		}
-		this.ws.onerror = (err) => {
-			this.props.history.push('/')
-			alert('can not access this page',err)
-		}
-		this.ws.onmessage = (evt) => {
-			const message = JSON.parse(evt.data)
-			this.setState({
-				socketName: message.name
-			})
-		}
+
+
+	componentDidMount(){
+		wsMan.ws.addEventListener("message", this.handleWs);
 	}
+	
 	componentWillUnmount(){
-		this.ws.close()
+		wsMan.ws.removeEventListener("message", this.handleWs);
+	}
+
+	handleWs = (evt) => {
+		const message = JSON.parse(evt.data)
+		let args = message.arg;
+		switch(message.method)
+		{
+			case "listMaterialName":
+				this.setState({
+					materialList: args
+				})
+				if(this.activeStep === steps.FILE)
+					this.handleNext();
+				break;
+			case "stateChange":
+				if(args.currentState === "print")
+					this.props.history.push('/progress/')
+				break;
+			default:
+				break;
+		}
 	}
 	handleNext = () => {
 		this.setState({	activeStep: this.state.activeStep + 1 })
 	}
 	handlePrint = () => {
-		axios.post("/api/start/").then(res => {
-			this.props.history.push('/progress/')
-			alert('sucess')
-		}).catch(err => {
-			alert('print fail')
-		})
+		wsMan.sendJson({
+			method: 'print',
+			arg: {
+				selectedMaterial: this.state.selectedMaterial,
+				selectedFilename: this.state.selectedFilename,
+				printFiles: this.state.printFiles,
+			}
+		});
 	}
 	handleReset = () => {
-		this.setState({	activeStep: 0, selectedMaterial:null})
+		this.setState(initState)
 	}
-	handleFileUpload = (filename) => {
+	handleFileUpload = (filename, fileJson) => {
 		this.setState({
 			selectedFilename : filename,
-			selected: [false, true]
+			printFiles: fileJson,
 		})
-		axios.get('/api/material/')
-		.then(response => {
-			var list=[]
-			response.data.forEach((item,index,array)=> {
-				list.push(item)
-			})
-			this.setState({
-				materialList: list,
-			})
-			this.handleNext();
-		})
+		//query materials
+		wsMan.sendJson({
+			method: 'listMaterialName'
+		});
 	}
 	handleMaterialSelected = (material) => {
 		this.setState({
 			selectedMaterial: material,
-			selected: [true, false]
 		})
 		this.handleNext();
 	}
@@ -122,18 +128,18 @@ class Print extends Component {
 		return (
 			<div className={classes.root}>
 				<Stepper activeStep={this.state.activeStep} orientation="vertical">
-				{this.state.steps.map((label, index) => (
+				{stepsMsg.map((label, index) => (
 					<Step key={label}>
 						<StepLabel>{label}</StepLabel>
 						<StepContent>
 							{this.getStepContent(index)}
 							<div className={classes.actionsContainer}>
-								{this.state.activeStep === this.state.steps.length - 1
+								{this.state.activeStep === stepsMsg.length - 1
 								&& (<Button
 									onClick={this.handleReset}
 									className={classes.button}> Reset 
 								</Button>)}
-								{this.state.activeStep === this.state.steps.length - 1
+								{this.state.activeStep === stepsMsg.length - 1
 								&& (<Button
 									variant="contained"
 									color="primary"

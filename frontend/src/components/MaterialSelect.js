@@ -20,17 +20,15 @@ class Print extends Component {
 	}
 
 	materialChange = (event) => {
-		this.state.material = event.target.value
+		this.setState({	material: event.target.value });
+
 		var str = "/api/material/" + this.state.material + "/select/" 
 		if(this.state.material === 'Choose here'){
 			alert('material select required')
 			return	
 		}
-		axios.post(str).then(res => {
-			this.props.onMaterialSelected(this.state.material)
-		}).catch(err => {
-			alert('material select fail')
-		})
+		this.props.onMaterialSelected(this.state.material)
+
 	}
 
 

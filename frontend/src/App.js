@@ -2,11 +2,14 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Home, Progress, Print } from './routes';
 import SideBarHeader from './components/SideBarHeader';
-
+import wsMan from './WsManager'
 class App extends Component {
 	
 	state = {
 		posts:[],
+	}
+	componentDidMount(){
+		wsMan.init();
 	}
 	
 	render() {

@@ -31,16 +31,14 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-	'channels',
-	'post',
-    
-	'django.contrib.admin',
+    'channels',
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-	
+    'post',
 	'rest_framework',
 	'corsheaders',
 ]

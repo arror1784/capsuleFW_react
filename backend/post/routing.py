@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from django.urls import path
-from frontendSocket import FrontendConsumer
-from printerSocket import PrinterConsumer
+from post.frontendSocket import FrontendConsumer
+from post.printerSocket import PrinterConsumer
 
 
 websocket_urlpatterns = [

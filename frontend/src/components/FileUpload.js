@@ -2,9 +2,6 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import CSRFToken from '../csrftoken';
 import FileUploaderBttn from "./FileUploaderBttn" 
-var JSZip = require('jszip');
-var FileSaver = require('file-saver');
-var  fs = require('fs');
 
 class FileUpload extends Component {
 
@@ -30,27 +27,37 @@ class FileUpload extends Component {
 		let pathTokens = pathString.split( '/' );
 		let directoryName = pathTokens[0];
 		//zip files...
-		var zip = new JSZip();
-		for(let i = 0; i < e.target.files.length; ++i)
+		let json = {};
+		this.readCount = 0;
+		let length = e.target.files.length;
+		for(let i = 0; i < length; ++i)
 		{
 			let file = e.target.files[i];
-			zip.file(file.name, file, {binary: true});
+			let reader = new FileReader();
+			reader.readAsDataURL(file); 
+			reader.onloadend = () => {
+
+				let base64data = reader.result;     
+				json[file.name] = base64data;
+				++this.readCount;
+				console.log(this.readCount);
+				if(this.readCount === length)
+				{
+					console.log("file~~~");
+					//set file name
+					this.props.onFileUploaded(directoryName, json);
+
+				}
+			}
 		}
 
-		zip.generateAsync({type:"blob"}).then( (blob) => {
-			let formData = new FormData();
-			formData.append('file', blob);
-			formData.append('folderName', directoryName);
-			axios.post("/api/file/upload/", formData).then(res => {
-				this.props.onFileUploaded(directoryName);
-			}).catch(err => {
-				alert('file upload fail')
-			})
-		});
+
+
 		
 	}
 
 	render() {
+		
 		return (
 			<div>
 				<CSRFToken />

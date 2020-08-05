@@ -27,7 +27,7 @@ class Status extends Component {
 		intervalID: null,
 		startTime: 0,
 		progress: 0,
-		state: 'ready',
+		printerState: 'ready',
 		elapsedTime: 0,
 	}
 	
@@ -86,7 +86,23 @@ class Status extends Component {
 			arg: 'quit'
 		});
 	}
-
+	handleEnableTimer = (enabled) => {
+		if(enabled){
+			//only enable if not already enabled
+			if(this.state.intervalID == null)
+			{
+				var intervalId = setInterval(this.tick, 100);
+				this.setState({
+					intervalID: intervalId
+				})
+			}
+		}else if(!enabled){
+			clearInterval(this.state.intervalID);
+			this.setState({
+				intervalID: null
+			})
+		}
+	}
 	handleWs = (evt) => {
 		const message = JSON.parse(evt.data)
 		let args = message.arg;
@@ -97,25 +113,25 @@ class Status extends Component {
 				{
 					case "start":
 						this.setState({
-							state: "print",
+							printerState: "print",
 							totalTime: 0,
 							progress: 0
 						})
 						break;
 					case "pause":
 						this.setState({
-							state: "pause"
+							printerState: "pause"
 						})
 						break;
 					case "finish":
 						this.setState({
-							state: "ready"
+							printerState: "ready"
 						})
 						clearInterval(this.state.intervalID);
 						break;
 					case "resume":
 						this.setState({
-							state: "print"
+							printerState: "print"
 						})
 						break;
 					default:
@@ -124,31 +140,24 @@ class Status extends Component {
 				break;
 			case "printInfo":
 				this.setState({
-					material: args.material,
-					fileName: args.fileName,
-					layerHeight: args.layerHeight,
-					startTime: args.startTime,
+					printerState: args.state,
+                    material: args.material,
+                    fileName: args.fileName,
+                    layerHeight: args.layerHeight,
+					elapsedTime: args.elapsedTime,
+                    totalTime: args.totalTime,
+					progress: args.progress,
 				})
+				this.handleEnableTimer(args.enableTimer);
+
 				break;
 			case "updateProgress":
 				this.setState({
 					progress: message.progress
 				})
 				break;
-			case "setTotalTime":
-				this.setState({
-					totalTime: message.date
-				})
-				break;
 			case "enableTimer":
-				if(message.onOff === true){
-					var intervalId = setInterval(this.tick, 100);
-					this.setState({
-						intervalID: intervalId
-					})
-				}else if(message.onOff === false){
-					clearInterval(this.state.intervalID);
-				}
+				this.handleEnableTimer(args);
 				break;
 			default:
 				break;
@@ -159,9 +168,10 @@ class Status extends Component {
 	render() {
 		let buttons;
 		let mainStr;
-		switch(this.state.state)
+		switch(this.state.printerState)
 		{
 			case "pause":
+				clearInterval(this.state.intervalID);
 				buttons =
 				<div className={styles["button-container"]} >
 					<Button variant="contained" onClick={this.handleResume}  color="primary">Resume</Button>

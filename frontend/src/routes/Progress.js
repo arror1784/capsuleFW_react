@@ -7,7 +7,10 @@ import wsMan from '../WsManager'
 
 function toStrTime(date)
 {
-	return `${date.getMinutes()}m ${date.getSeconds()}s`;
+	if(date)
+		return `${date.getMinutes()}m ${date.getSeconds()}s`;
+	else
+		return '0m 0s';
 }
 
 class Status extends Component {
@@ -23,16 +26,30 @@ class Status extends Component {
 		totalTime: 0,
 		intervalID: null,
 		startTime: 0,
-		progress: 25,
+		progress: 0,
 		state: 'ready',
 		elapsedTime: 0,
 	}
 	
 	componentDidMount(){
 		wsMan.ws.addEventListener("message", this.handleWs);
-		wsMan.sendJson({
-			method: 'printInfo'
-		});
+		if (wsMan.ws.readyState !== WebSocket.OPEN)
+		{
+			let afterConnection = () =>{
+				wsMan.sendJson({
+					method: 'printInfo'
+				});
+				wsMan.ws.removeEventListener("open",afterConnection);
+			};
+			wsMan.ws.addEventListener("open",afterConnection);
+		}
+		else
+		{
+			wsMan.sendJson({
+				method: 'printInfo'
+			});
+		}
+
 
 	}
 
@@ -182,11 +199,7 @@ class Status extends Component {
 					<p>Elapsed time: {toStrTime(this.state.elapsedTime)}</p>
 					<p>Total printing time: {toStrTime(this.state.totalTime)}</p>
 				</div>
-				<section>
-					<article>
-						<ProgressBar value={this.state.progress}/>
-					</article>
-				</section>
+				<ProgressBar value={this.state.progress}/>
 				{buttons}
 			</div>
 		);

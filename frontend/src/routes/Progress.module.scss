@@ -8,8 +8,13 @@ $gray: #444;
     display: flex;
     overflow: hidden;
     flex-direction: column;
-
+    width: 100%;
+    align-items: center;
+    flex-wrap: wrap;
     justify-content: center;
+
+
+    align-self: center;
 
     margin-bottom: 4em;
 }

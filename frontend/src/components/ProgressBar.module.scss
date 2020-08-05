@@ -25,10 +25,12 @@ START // CHART'S RULES
 .chart
 {
     font-size: 1em;
-
+    //  width: 500px;
+     width: 50%;
     perspective: 1000px;
     perspective-origin: 50% 50%;
     backface-visibility: visible;
+
 }
 
 $faceColor: rgba($white, .3);

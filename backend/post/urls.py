@@ -1,21 +1,6 @@
 from django.urls import path
-
-from . import views, materialViews,fileViews
-
+from post.views import get_csrf
 urlpatterns = [
-	path('get_csrf/', views.get_csrf),
-	
-	path('state/',views.printerState),
-
-	path('file/upload/',fileViews.file),
-	
-#path('material/',views.materialList),
-	path('material/',materialViews.materialList),
-	path('material/<slug:materialName>/info/',materialViews.materialInfo),
-	path('material/<slug:materialName>/select/',materialViews.materialSelect),
-	
-	path('start/',views.startPrint),
-	
-	path('test/',views.test),
+    path('get_csrf/', get_csrf),
 ]
 

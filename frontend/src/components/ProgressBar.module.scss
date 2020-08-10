@@ -14,77 +14,6 @@ $lightGray: lighten($gray, 30);
 $transitionDuration: .3s;
 $transition: all $transitionDuration ease-in-out;
 
-body
-{
-    font-family: 'Open Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 300;
-    line-height: 1em;
-
-    text-align: center;
-
-    color: $gray;
-    background: #d0d0d0;
-}
-h1
-{
-    font-size: 2.5em;
-
-    margin: 2em 0 .5em;
-}
-h2
-{
-    margin-bottom: 3em;
-}
-em,
-strong
-{
-    font-weight: 700;
-}
-input
-{
-    display: none;
-}
-header p 
-{
-    margin-bottom: 0;
-}
-section
-{
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    margin-bottom: 2em;
-    padding: 0;
-    &:last-of-type
-    {
-        margin-bottom: 0;
-    }
-    article 
-    {
-        align-self: center;
-        width: 20em;
-        margin-bottom: 2em;
-        p,
-        &:last-of-type
-        {
-            margin-bottom: 0;
-        }
-    }
-}
-// p
-// {
-//     line-height: 1.5em;
-
-//     max-width: 20em;
-//     margin: 1.5em auto 2em;
-//     padding-bottom: 1.5em;
-//     span
-//     {
-//         display: block;
-//     }
-// }
-
 
 /*
 *
@@ -96,10 +25,12 @@ START // CHART'S RULES
 .chart
 {
     font-size: 1em;
-
+    //  width: 500px;
+     width: 50%;
     perspective: 1000px;
     perspective-origin: 50% 50%;
     backface-visibility: visible;
+
 }
 
 $faceColor: rgba($white, .3);

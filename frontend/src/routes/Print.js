@@ -11,6 +11,9 @@ import FileUpload from '../components/FileUpload';
 import MaterialSelect from '../components/MaterialSelect';
 import wsMan from '../WsManager'
 
+import BlockUi from 'react-block-ui';
+import 'react-block-ui/style.css';
+
 const styles = (theme) => ({
 	root: {
 		width: '100%',
@@ -31,9 +34,11 @@ const  stepsMsg = ['Select Print File', 'Choose Material', 'Print'];
 const initState ={
 	selectedFilename: "",
 	selectedMaterial: null,
-	materialList: ["--------------------"],
+	materialList: [],
 	printFiles: null,
 	activeStep: 0,
+	blocking: false,
+	printBTN: "Print",
 }
 
 const steps ={
@@ -48,7 +53,7 @@ class Print extends Component {
 	getStepContent(step) {
 		switch (step) {
 			case 0:
-				return <FileUpload onFileUploaded={this.handleFileUpload}/>
+				return <FileUpload onFileUploaded={this.handleFileUpload} onButtonClicked={this.handleBlockToggle} onResinEnable={this.handleResinEnable}/>
 			case 1:
 				return <MaterialSelect materialList={this.state.materialList} material={this.state.selectedMaterial} onMaterialSelected={this.handleMaterialSelected}/>
 			case 2:
@@ -71,21 +76,58 @@ class Print extends Component {
 		wsMan.ws.removeEventListener("message", this.handleWs);
 	}
 
+	handleBlockToggle = (enabled) => {
+		this.setState({
+			blocking: enabled
+		})
+	}
+
 	handleWs = (evt) => {
 		const message = JSON.parse(evt.data)
 		let args = message.arg;
 		switch(message.method)
 		{
 			case "listMaterialName":
+				var list = this.state.materialList
+				list.push(...args)
 				this.setState({
-					materialList: args
+					materialList: list
 				})
-				if(this.activeStep === steps.FILE)
+				if(this.state.activeStep === steps.FILE)
 					this.handleNext();
 				break;
-			case "stateChange":
-				if(args.currentState === "print")
+			case "changeState":
+				if(args !== "ready"){
+					this.handleBlockToggle(false)
 					this.props.history.push('/progress/')
+				}
+				break;
+			case "printSettingError":
+				///print setting Error when received print start from UI
+				let text = ""
+				switch(args){
+					case 1:
+						text = "LCD OFF : lcd reconnect and reboot."
+						break;
+					case 2:
+						text = "File Error: Project crash."
+						break;
+					case 3:
+						text = "Setting Error: Project crash."
+						break;
+					case 4:
+						text = "Already Printing."
+						break;
+					case 5:
+						text = "USB Connection Error."
+						break;
+					default:
+						break;
+				}
+				console.log("print setting error code, ", text)
+				window.confirm(text)
+				this.props.history.push('/progress/')
+				// window.location.reload(false);
 				break;
 			default:
 				break;
@@ -95,6 +137,10 @@ class Print extends Component {
 		this.setState({	activeStep: this.state.activeStep + 1 })
 	}
 	handlePrint = () => {
+		this.handleBlockToggle(true)
+		this.setState({
+			printBTN:"Uploading..."
+		})
 		wsMan.sendJson({
 			method: 'print',
 			arg: {
@@ -106,6 +152,12 @@ class Print extends Component {
 	}
 	handleReset = () => {
 		this.setState(initState)
+
+	}
+	handleResinEnable = () => {
+		this.setState({
+			materialList: ["Custom"]
+		})
 	}
 	handleFileUpload = (filename, fileJson) => {
 		this.setState({
@@ -126,32 +178,34 @@ class Print extends Component {
 	render() {
 		const {classes} = this.props;
 		return (
-			<div className={classes.root}>
-				<Stepper activeStep={this.state.activeStep} orientation="vertical">
-				{stepsMsg.map((label, index) => (
-					<Step key={label}>
-						<StepLabel>{label}</StepLabel>
-						<StepContent>
-							{this.getStepContent(index)}
-							<div className={classes.actionsContainer}>
-								{this.state.activeStep === stepsMsg.length - 1
-								&& (<Button
-									onClick={this.handleReset}
-									className={classes.button}> Reset 
-								</Button>)}
-								{this.state.activeStep === stepsMsg.length - 1
-								&& (<Button
-									variant="contained"
-									color="primary"
-									onClick={this.handlePrint}
-									className={classes.button}> Print 
-								</Button>)}
-							</div>
-						</StepContent>
-					</Step>
-				))}
-				</Stepper>
-			</div>
+			<BlockUi tag="div" blocking={this.state.blocking}>
+				<div className={classes.root}>
+					<Stepper activeStep={this.state.activeStep} orientation="vertical">
+					{stepsMsg.map((label, index) => (
+						<Step key={label}>
+							<StepLabel>{label}</StepLabel>
+							<StepContent>
+								{this.getStepContent(index)}
+								<div className={classes.actionsContainer}>
+									{this.state.activeStep === stepsMsg.length - 1
+									&& (<Button
+										onClick={this.handleReset}
+										className={classes.button}> Reset 
+									</Button>)}
+									{this.state.activeStep === stepsMsg.length - 1
+									&& (<Button
+										variant="contained"
+										color="primary"
+										onClick={this.handlePrint}
+										className={classes.button}> {this.state.printBTN} 
+									</Button>)}
+								</div>
+							</StepContent>
+						</Step>
+					))}
+					</Stepper>
+				</div>
+			</BlockUi>
 		);
 	}
 }

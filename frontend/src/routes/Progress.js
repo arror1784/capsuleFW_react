@@ -25,10 +25,12 @@ class Status extends Component {
 		layerHeight: 0,
 		totalTime: 0,
 		intervalID: null,
-		startTime: 0,
+		intervalBlock: true,
 		progress: 0,
 		printerState: 'ready',
+		startTime: 0,
 		elapsedTime: 0,
+		time: 0
 	}
 	
 	componentDidMount(){
@@ -49,21 +51,30 @@ class Status extends Component {
 				method: 'printInfo'
 			});
 		}
-
-
+		var date = new Date()
+		this.setState({
+			startTime: date.getTime
+		})
+		var intervalId = setInterval(this.tick, 50);
+		this.setState({
+			intervalID: intervalId
+		})
 	}
 
 	componentWillUnmount(){
 		wsMan.ws.removeEventListener("message", this.handleWs);
+		clearInterval(this.state.intervalID);
 	}
 	
 	tick = () => {
-		var date = new Date()
-		var currentDuration = date.getTime() - this.state.startTime
+		if(this.state.intervalBlock)
+			return
+		var date = new Date();
+		var currentDuration = date.getTime() - this.state.startTime + this.state.elapsedTime
 		var currentDate = new Date(currentDuration)
 
 		this.setState({
-			elapsedTime: currentDate
+			time: currentDuration
 		})
 	}
 	handlePause = () => {
@@ -89,17 +100,17 @@ class Status extends Component {
 	handleEnableTimer = (enabled) => {
 		if(enabled){
 			//only enable if not already enabled
-			if(this.state.intervalID == null)
-			{
-				var intervalId = setInterval(this.tick, 100);
-				this.setState({
-					intervalID: intervalId
-				})
-			}
-		}else if(!enabled){
-			clearInterval(this.state.intervalID);
+			var date = new Date()
 			this.setState({
-				intervalID: null
+				startTime: date.getTime()
+			})
+			this.setState({
+				intervalBlock: false
+			})
+		}else{
+			this.setState({
+				intervalBlock: true,
+				elapsedTime: this.state.time
 			})
 		}
 	}
@@ -111,11 +122,17 @@ class Status extends Component {
 			case "changeState":
 				switch(args)
 				{
-					case "start":
+					case "print":
 						this.setState({
 							printerState: "print",
 							totalTime: 0,
-							progress: 0
+							progress: 0,
+							time: 0
+						})
+						break;
+					case "pauseStart":
+						this.setState({
+							printerState: "pauseStart"
 						})
 						break;
 					case "pause":
@@ -127,37 +144,59 @@ class Status extends Component {
 						this.setState({
 							printerState: "ready"
 						})
-						clearInterval(this.state.intervalID);
 						break;
 					case "resume":
 						this.setState({
 							printerState: "print"
 						})
 						break;
+					case "quit":
+						this.setState({
+							printerState: "quit"
+						})
+						break;
+					case "error":		//error signal while printing and still not finish
+						this.setState({
+							printerState: "error"
+						})
+						break;
+					case "printError":	//error signal when print finish
+						this.setState({
+							printerState: "ready"
+						})
+						window.confirm("ERROR while printing")
+						break;
 					default:
 						break;
 				}
 				break;
 			case "printInfo":
+				var D = new Date()
 				this.setState({
 					printerState: args.state,
                     material: args.material,
                     fileName: args.fileName,
                     layerHeight: args.layerHeight,
 					elapsedTime: args.elapsedTime,
-                    totalTime: args.totalTime,
+                    totalTime: new Date(args.totalTime),
 					progress: args.progress,
+					startTime : D.getTime
 				})
 				this.handleEnableTimer(args.enableTimer);
 
 				break;
 			case "updateProgress":
 				this.setState({
-					progress: message.progress
+					progress: args
 				})
 				break;
 			case "enableTimer":
 				this.handleEnableTimer(args);
+				break;
+			case "setTotalTime":
+				this.setState({
+					totalTime: new Date(args)
+				})
 				break;
 			default:
 				break;
@@ -171,7 +210,6 @@ class Status extends Component {
 		switch(this.state.printerState)
 		{
 			case "pause":
-				clearInterval(this.state.intervalID);
 				buttons =
 				<div className={styles["button-container"]} >
 					<Button variant="contained" onClick={this.handleResume}  color="primary">Resume</Button>
@@ -180,7 +218,7 @@ class Status extends Component {
 				mainStr = "Paused... " +this.state.progress + "%" ;
 
 				break;
-			case "pause_start":
+			case "pauseStart":
 				buttons =
 				<div className={styles["button-container"]} >
 					<Button variant="contained" disabled>Pausing...</Button>
@@ -194,11 +232,25 @@ class Status extends Component {
 				</div>	
 				mainStr = "Printing... " +this.state.progress + "%" ;
 				break;
+			case "quit":
+				buttons =
+				<div className={styles["button-container"]} >
+					<Button variant="contained" disabled>Quit...</Button>
+				</div>	
+				mainStr = "Quit... " +this.state.progress + "%" ;
+				break;
+			case "error":
+				buttons =
+				<div className={styles["button-container"]} >
+					<Button variant="contained" disabled>Error...</Button>
+				</div>	
+				mainStr = "Error... " +this.state.progress + "%" ;
+				break;
 			default:
 				mainStr = "Ready";
 				
 		}
-
+		var D = new Date(this.state.totalTime)
 		return (
 			<div className={styles["progress-container"]}>
 				<h1>{mainStr}</h1>
@@ -206,8 +258,8 @@ class Status extends Component {
 					<p>Model: {this.state.fileName}</p>
 					<p>Material: {this.state.material}</p>
 					<p>Layer height: {this.state.layerHeight}mm</p>
-					<p>Elapsed time: {toStrTime(this.state.elapsedTime)}</p>
-					<p>Total printing time: {toStrTime(this.state.totalTime)}</p>
+					<p>Time: {toStrTime(new Date(this.state.time))}</p>
+					<p>Total printing time: {D.getTime() === 0 ? "Calculating" : toStrTime(this.state.totalTime)}</p>
 				</div>
 				<ProgressBar value={this.state.progress}/>
 				{buttons}

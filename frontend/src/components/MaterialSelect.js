@@ -20,15 +20,15 @@ class Print extends Component {
 	}
 
 	materialChange = (event) => {
-		this.setState({	material: event.target.value });
+		this.setState({	material: event.target.value },() => {
 
-		var str = "/api/material/" + this.state.material + "/select/" 
-		if(this.state.material === 'Choose here'){
-			alert('material select required')
-			return	
-		}
-		this.props.onMaterialSelected(this.state.material)
+			if(this.state.material === 'Choose here'){
+				alert('material select required')
+				return	
+			}
 
+			this.props.onMaterialSelected(this.state.material)
+		});
 	}
 
 

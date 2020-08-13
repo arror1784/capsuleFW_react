@@ -34,20 +34,20 @@ class Status extends Component {
 	}
 	
 	componentDidMount(){
-		wsMan.ws.addEventListener("message", this.handleWs);
-		if (wsMan.ws.readyState !== WebSocket.OPEN)
+		wsMan.getInstance().ws.addEventListener("message", this.handleWs);
+		if (wsMan.getInstance().ws.readyState !== WebSocket.OPEN)
 		{
 			let afterConnection = () =>{
-				wsMan.sendJson({
+				wsMan.getInstance().sendJson({
 					method: 'printInfo'
 				});
-				wsMan.ws.removeEventListener("open",afterConnection);
+				wsMan.getInstance().ws.removeEventListener("open",afterConnection);
 			};
-			wsMan.ws.addEventListener("open",afterConnection);
+			wsMan.getInstance().ws.addEventListener("open",afterConnection);
 		}
 		else
 		{
-			wsMan.sendJson({
+			wsMan.getInstance().sendJson({
 				method: 'printInfo'
 			});
 		}
@@ -62,7 +62,7 @@ class Status extends Component {
 	}
 
 	componentWillUnmount(){
-		wsMan.ws.removeEventListener("message", this.handleWs);
+		wsMan.getInstance().ws.removeEventListener("message", this.handleWs);
 		clearInterval(this.state.intervalID);
 	}
 	
@@ -78,21 +78,21 @@ class Status extends Component {
 		})
 	}
 	handlePause = () => {
-		wsMan.sendJson({
+		wsMan.getInstance().sendJson({
 			method: 'changeState',
 			arg: 'pause'
 		});
 	}
 
 	handleResume = () => {
-		wsMan.sendJson({
+		wsMan.getInstance().sendJson({
 			method: 'changeState',
 			arg: 'resume'
 		});
 	}
 
 	handleQuit = () => {
-		wsMan.sendJson({
+		wsMan.getInstance().sendJson({
 			method: 'changeState',
 			arg: 'quit'
 		});

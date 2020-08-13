@@ -1,8 +1,20 @@
+const WSURL = ':8000/ws/front'
 
-const WSURL = ':8000/ws/front';
+export default class WsManager {
 
+    static instance = null;
+    
+    /**
+     * @returns {WsManager}
+     */
+    static getInstance() {
+        if (WsManager.instance == null) {
+            WsManager.instance = new WsManager();
+        }
 
-export default {
+        return this.instance;
+    }
+
     init()
     {
         this.ws = new WebSocket('ws://' + window.location.hostname + WSURL)
@@ -12,7 +24,7 @@ export default {
         this.ws.onclose = () => {
 			console.log("disconnected")
 		}
-    },
+    }
     sendJson(json)
     {
         this.ws.send(JSON.stringify(json));

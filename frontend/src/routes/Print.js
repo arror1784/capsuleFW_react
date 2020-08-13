@@ -69,11 +69,11 @@ class Print extends Component {
 
 
 	componentDidMount(){
-		wsMan.ws.addEventListener("message", this.handleWs);
+		wsMan.getInstance().ws.addEventListener("message", this.handleWs);
 	}
 	
 	componentWillUnmount(){
-		wsMan.ws.removeEventListener("message", this.handleWs);
+		wsMan.getInstance().ws.removeEventListener("message", this.handleWs);
 	}
 
 	handleBlockToggle = (enabled) => {
@@ -141,7 +141,7 @@ class Print extends Component {
 		this.setState({
 			printBTN:"Uploading..."
 		})
-		wsMan.sendJson({
+		wsMan.getInstance().sendJson({
 			method: 'print',
 			arg: {
 				selectedMaterial: this.state.selectedMaterial,
@@ -165,7 +165,7 @@ class Print extends Component {
 			printFiles: fileJson,
 		})
 		//query materials
-		wsMan.sendJson({
+		wsMan.getInstance().sendJson({
 			method: 'listMaterialName'
 		});
 	}

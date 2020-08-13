@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-import CSRFToken from '../csrftoken';
 import FileUploaderBttn from "./FileUploaderBttn" 
 
 class FileUpload extends Component {
@@ -13,16 +11,13 @@ class FileUpload extends Component {
 	state = {
 		selectedFile: null,
 	}
-	componentDidMount(){
-		axios.get('/api/get_csrf/')
-	}
 	handleFileInput = (e) => {
 		this.props.onButtonClicked(true)
 		let first = e.target.files[0]
 		if(first === null){
 			alert('file select required')
 			this.props.onButtonClicked(false)
-			return
+			return 0
 		}
 		//get filename
 		let pathString = first.webkitRelativePath.replace(/\\/g,"/");
@@ -71,7 +66,6 @@ class FileUpload extends Component {
 		
 		return (
 			<div>
-				<CSRFToken />
 				<FileUploaderBttn handleFile={this.handleFileInput}></FileUploaderBttn>
 			</div>
 		);

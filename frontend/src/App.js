@@ -10,14 +10,14 @@ class App extends Component {
 		super(props);
 		this.state = {
 		}
-		wsMan.init();
+		wsMan.getInstance().init();
 	}
 
 	componentDidMount(){
 	}
 	
 	render() {
-		// if (wsMan.ws === undefined || wsMan.ws.readyState !== WebSocket.OPEN) {
+		// if (wsMan.getInstance().ws === undefined || wsMan.getInstance().ws.readyState !== WebSocket.OPEN) {
         //     return <div />;
         // }
 		return (	

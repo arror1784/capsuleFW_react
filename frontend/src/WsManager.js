@@ -4,30 +4,28 @@ export default class WsManager {
 
     static instance = null;
     
-    /**
-     * @returns {WsManager}
-     */
-    static getInstance() {
-        if (WsManager.instance == null) {
-            WsManager.instance = new WsManager();
-            WsManager.instance.init()
-        }
-        return this.instance;
-    }
-
-    init()
-    {
+    constructor() {
         this.ws = new WebSocket('ws://' + window.location.hostname + WSURL)
         this.ws.onopen = () => {
 			console.log('connected')	
         }
         this.ws.onclose = () => {
 			console.log("disconnected")
-		}
+        }
     }
+
+    /**
+     * @returns {WsManager}
+     */
+    static getInstance() {
+        if (WsManager.instance == null) {
+            WsManager.instance = new WsManager();
+        }
+        return this.instance;
+    }
+
     sendJson(json)
     {
         this.ws.send(JSON.stringify(json));
     }
 }
-

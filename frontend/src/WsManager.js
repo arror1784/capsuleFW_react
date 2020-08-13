@@ -10,8 +10,8 @@ export default class WsManager {
     static getInstance() {
         if (WsManager.instance == null) {
             WsManager.instance = new WsManager();
+            WsManager.instance.init()
         }
-
         return this.instance;
     }
 

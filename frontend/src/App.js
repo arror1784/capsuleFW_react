@@ -10,7 +10,6 @@ class App extends Component {
 		super(props);
 		this.state = {
 		}
-		wsMan.getInstance().init();
 	}
 
 	componentDidMount(){

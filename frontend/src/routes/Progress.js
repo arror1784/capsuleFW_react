@@ -250,7 +250,7 @@ class Status extends Component {
 				mainStr = "Ready";
 				
 		}
-		var D = new Date(this.state.totalTime)
+		var Dtotal = new Date(this.state.totalTime)
 		return (
 			<div className={styles["progress-container"]}>
 				<h1>{mainStr}</h1>
@@ -258,8 +258,8 @@ class Status extends Component {
 					<p>Model: {this.state.fileName}</p>
 					<p>Material: {this.state.material}</p>
 					<p>Layer height: {this.state.layerHeight}mm</p>
-					<p>Time: {toStrTime(new Date(this.state.time))}</p>
-					<p>Total printing time: {D.getTime() === 0 ? "Calculating" : toStrTime(this.state.totalTime)}</p>
+					<p>Time: {toStrTime(this.state.time)}</p>
+					<p>Total printing time: {Dtotal.getTime() === 0 ? "Calculating" : toStrTime(this.state.totalTime)}</p>
 				</div>
 				<ProgressBar value={this.state.progress}/>
 				{buttons}

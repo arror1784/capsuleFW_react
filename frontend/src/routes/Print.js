@@ -53,7 +53,7 @@ class Print extends Component {
 	getStepContent(step) {
 		switch (step) {
 			case 0:
-				return <FileUpload onFileUploaded={this.handleFileUpload} onButtonClicked={this.handleBlockToggle} onResinEnable={this.handleResinEnable}/>
+				return <FileUpload onFileUploaded={this.handleFileUpload} onButtonClicked={this.handleFileuploadButtonClicked} onResinEnable={this.handleResinEnable}/>
 			case 1:
 				return <MaterialSelect materialList={this.state.materialList} material={this.state.selectedMaterial} onMaterialSelected={this.handleMaterialSelected}/>
 			case 2:
@@ -80,6 +80,9 @@ class Print extends Component {
 		this.setState({
 			blocking: enabled
 		})
+	}
+	handleFileuploadButtonClicked = () => {
+		this.handleBlockToggle(true)
 	}
 
 	handleWs = (evt) => {
@@ -163,7 +166,10 @@ class Print extends Component {
 		this.setState({
 			selectedFilename : filename,
 			printFiles: fileJson,
+			blocking: false,
 		})
+		console.log(fileJson)
+		console.log(filename)
 		//query materials
 		wsMan.getInstance().sendJson({
 			method: 'listMaterialName'

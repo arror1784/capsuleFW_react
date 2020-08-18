@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import FileUploaderBttn from "./FileUploaderBttn" 
+import JSZip from 'jszip';
 
 class FileUpload extends Component {
 
@@ -12,54 +13,63 @@ class FileUpload extends Component {
 		selectedFile: null,
 	}
 	handleFileInput = (e) => {
-		this.props.onButtonClicked(true)
+		this.props.onButtonClicked()
 		let first = e.target.files[0]
 		if(first === null){
-			alert('file select required')
-			this.props.onButtonClicked(false)
-			return 0
+			window.confirm("File select required")
+			window.location.reload(false);
+			return
 		}
-		//get filename
-		let pathString = first.webkitRelativePath.replace(/\\/g,"/");
-		let pathTokens = pathString.split( '/' );
-		let directoryName = pathTokens[0];
 		//zip files...
 		let json = {};
-		this.readCount = 0;
-		let length = e.target.files.length;
-		let infoB = false;
-		let infoR = false;
-		for(let i = 0; i < length; ++i)
-		{
-			let file = e.target.files[i];
-			let reader = new FileReader();
-			if(file.name === "info.json"){
-				infoB = true;
-			}else if(file.name === "resin.json"){
-				infoR = true;
-				this.props.onResinEnable();
-			}
-			reader.readAsDataURL(file);
-			reader.onloadend = () => {
-				
-				let base64data = reader.result;     
-				json[file.name] = base64data;
-				++this.readCount;
-				console.log(this.readCount);
-				if(this.readCount === length)
-				{
-					console.log("file~~~");
-					//set file name
+
+		let infoB = false
+
+		let file = first;
+		let fileName = first.name
+		let res = null
+
+		let reader = new FileReader();
+		
+		if(file.name.endsWith(".zip")){
+			
+		}else{
+			return;
+		}
+		reader.readAsDataURL(file);
+		reader.onloadend = (evt) => {
+
+			res = evt.target.result
+
+			json[fileName] = res
+			console.log(res)
+			console.log(fileName)
+
+			JSZip.loadAsync(res.split(',')[1],{base64: true}).then( (zip) => {
+					let zipInst = zip
+					zipInst.forEach(element => {
+						if(element === "info.json"){
+							infoB = true
+						}else if(element === "resin.json"){
+							this.props.onResinEnable();
+						}
+					});
 					if(infoB){
-						this.props.onFileUploaded(directoryName, json);
+						this.props.onFileUploaded(fileName, json);
 					}else{
 						window.confirm("No Project Folder")
 						window.location.reload(false);
 					}
 				}
-			}
+			).catch((error) => {
+				window.confirm("Zip load error" + error)
+				window.location.reload(false);
+			})
 		}
-		this.props.onButtonClicked(false)
+		reader.onerror = () => {
+			window.confirm("File load error")
+			window.location.reload(false);
+		}
 	}
 
 	render() {

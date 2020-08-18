@@ -168,8 +168,6 @@ class Print extends Component {
 			printFiles: fileJson,
 			blocking: false,
 		})
-		console.log(fileJson)
-		console.log(filename)
 		//query materials
 		wsMan.getInstance().sendJson({
 			method: 'listMaterialName'

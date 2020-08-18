@@ -178,7 +178,7 @@ class Status extends Component {
                     fileName: args.fileName,
                     layerHeight: args.layerHeight,
 					elapsedTime: args.elapsedTime,
-                    totalTime: new Date(args.totalTime),
+                    totalTime: args.totalTime,
 					progress: args.progress,
 					startTime : D.getTime
 				})
@@ -195,7 +195,7 @@ class Status extends Component {
 				break;
 			case "setTotalTime":
 				this.setState({
-					totalTime: new Date(args)
+					totalTime: args
 				})
 				break;
 			default:
@@ -251,6 +251,7 @@ class Status extends Component {
 				
 		}
 		var Dtotal = new Date(this.state.totalTime)
+		var DTime = new Date(this.state.time)
 		return (
 			<div className={styles["progress-container"]}>
 				<h1>{mainStr}</h1>
@@ -258,8 +259,8 @@ class Status extends Component {
 					<p>Model: {this.state.fileName}</p>
 					<p>Material: {this.state.material}</p>
 					<p>Layer height: {this.state.layerHeight}mm</p>
-					<p>Time: {toStrTime(this.state.time)}</p>
-					<p>Total printing time: {Dtotal.getTime() === 0 ? "Calculating" : toStrTime(this.state.totalTime)}</p>
+					<p>Time: {toStrTime(DTime)}</p>
+					<p>Total printing time: {Dtotal.getTime() === 0 ? "Calculating" : toStrTime(Dtotal)}</p>
 				</div>
 				<ProgressBar value={this.state.progress}/>
 				{buttons}

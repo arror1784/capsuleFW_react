@@ -251,7 +251,11 @@ class Status extends Component {
 				
 		}
 		var Dtotal = new Date(this.state.totalTime)
-		var DTime = new Date(this.state.time)
+		var diffDuration = this.state.totalTime - this.state.time
+		if(diffDuration < 0)
+			diffDuration = -diffDuration
+		
+		var RTime = new Date(diffDuration)
 		return (
 			<div className={styles["progress-container"]}>
 				<h1>{mainStr}</h1>
@@ -259,7 +263,7 @@ class Status extends Component {
 					<p>Model: {this.state.fileName}</p>
 					<p>Material: {this.state.material}</p>
 					<p>Layer height: {this.state.layerHeight}mm</p>
-					<p>Time: {toStrTime(DTime)}</p>
+					<p>Remaining Time: {Dtotal.getTime() === 0 ? "Calculating" : toStrTime(RTime)}</p>
 					<p>Total printing time: {Dtotal.getTime() === 0 ? "Calculating" : toStrTime(Dtotal)}</p>
 				</div>
 				<ProgressBar value={this.state.progress}/>

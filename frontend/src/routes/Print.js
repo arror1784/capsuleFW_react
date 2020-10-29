@@ -53,7 +53,7 @@ class Print extends Component {
 	getStepContent(step) {
 		switch (step) {
 			case 0:
-				return <FileUpload onFileUploaded={this.handleFileUpload} onButtonClicked={this.handleBlockToggle} onResinEnable={this.handleResinEnable}/>
+				return <FileUpload onFileUploaded={this.handleFileUpload} onButtonClicked={this.handleFileuploadButtonClicked} onResinEnable={this.handleResinEnable}/>
 			case 1:
 				return <MaterialSelect materialList={this.state.materialList} material={this.state.selectedMaterial} onMaterialSelected={this.handleMaterialSelected}/>
 			case 2:
@@ -69,17 +69,20 @@ class Print extends Component {
 
 
 	componentDidMount(){
-		wsMan.ws.addEventListener("message", this.handleWs);
+		wsMan.getInstance().ws.addEventListener("message", this.handleWs);
 	}
 	
 	componentWillUnmount(){
-		wsMan.ws.removeEventListener("message", this.handleWs);
+		wsMan.getInstance().ws.removeEventListener("message", this.handleWs);
 	}
 
 	handleBlockToggle = (enabled) => {
 		this.setState({
 			blocking: enabled
 		})
+	}
+	handleFileuploadButtonClicked = () => {
+		this.handleBlockToggle(true)
 	}
 
 	handleWs = (evt) => {
@@ -141,7 +144,7 @@ class Print extends Component {
 		this.setState({
 			printBTN:"Uploading..."
 		})
-		wsMan.sendJson({
+		wsMan.getInstance().sendJson({
 			method: 'print',
 			arg: {
 				selectedMaterial: this.state.selectedMaterial,
@@ -163,9 +166,10 @@ class Print extends Component {
 		this.setState({
 			selectedFilename : filename,
 			printFiles: fileJson,
+			blocking: false,
 		})
 		//query materials
-		wsMan.sendJson({
+		wsMan.getInstance().sendJson({
 			method: 'listMaterialName'
 		});
 	}

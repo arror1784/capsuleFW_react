@@ -19,12 +19,12 @@ const FileUploaderBttn = props => {
   return (
     <>
       <Button onClick={handleClick}>
-        Choose a directory
+        Choose a file (.zip)
       </Button>
       <input
         type="file"
-        webkitdirectory=""
         ref={hiddenFileInput}
+        accept=".zip"
         onChange={handleChange}
         style={{display: 'none'}} /* Make the file input element invisible */
       />

@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import axios from 'axios';
-import CSRFToken from '../csrftoken';
 
 class Print extends Component {
 
@@ -10,7 +8,6 @@ class Print extends Component {
 	}
 
 	componentDidMount(){
-		axios.get('/api/get_csrf/')
 		if(this.props.material === null){
 			return
 		}
@@ -35,7 +32,6 @@ class Print extends Component {
 	render() {
 		return (
 			<div>
-				<CSRFToken />
 				<select value={this.state.material} onChange={this.materialChange}>
 					<option disabled>Choose here</option>
 					{this.props.materialList.map((material,index) => {

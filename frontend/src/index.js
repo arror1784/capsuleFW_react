@@ -1,5 +1,8 @@
 // import 'react-app-polyfill/ie11';
-// import 'react-app-polyfill/ie9';
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+import 'react-app-polyfill/ie9';
+import 'react-app-polyfill/stable';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -7,6 +10,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+
 
 //import configureStre from './store/configureStroe';
 //import createHistory from 'history/createBrowserHistory';

@@ -91,7 +91,10 @@ class Print extends Component {
 		switch(message.method)
 		{
 			case "listMaterialName":
-				var list = this.state.materialList
+				var list = []
+				if(this.state.materialList.includes("Custom")){
+					list.push("Custom")
+				}
 				list.push(...args)
 				this.setState({
 					materialList: list

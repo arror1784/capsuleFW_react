@@ -12,6 +12,13 @@ function toStrTime(date)
 	else
 		return '0m 0s';
 }
+function toStrTimeM(date)
+{
+	if(date)
+		return `${-date.getMinutes()}m ${-date.getSeconds()}s`;
+	else
+		return '0m 0s';
+}
 
 class Status extends Component {
 
@@ -251,7 +258,17 @@ class Status extends Component {
 				
 		}
 		var Dtotal = new Date(this.state.totalTime)
-		var DTime = new Date(this.state.time)
+		var diffDuration = this.state.totalTime - this.state.time
+		var Rtext= ""
+		if(diffDuration < 0){
+			var RTime = new Date(-diffDuration)
+			Rtext = toStrTimeM(RTime)
+		}else{
+			var RTime = new Date(diffDuration)
+			Rtext = toStrTime(RTime)
+		}
+
+		
 		return (
 			<div className={styles["progress-container"]}>
 				<h1>{mainStr}</h1>
@@ -259,7 +276,7 @@ class Status extends Component {
 					<p>Model: {this.state.fileName}</p>
 					<p>Material: {this.state.material}</p>
 					<p>Layer height: {this.state.layerHeight}mm</p>
-					<p>Time: {toStrTime(DTime)}</p>
+					<p>Remaining Time: {Dtotal.getTime() === 0 ? "Calculating" : Rtext}</p>
 					<p>Total printing time: {Dtotal.getTime() === 0 ? "Calculating" : toStrTime(Dtotal)}</p>
 				</div>
 				<ProgressBar value={this.state.progress}/>

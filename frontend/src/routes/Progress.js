@@ -147,11 +147,6 @@ class Status extends Component {
 							printerState: "pause"
 						})
 						break;
-					case "finish":
-						this.setState({
-							printerState: "ready"
-						})
-						break;
 					case "resume":
 						this.setState({
 							printerState: "print"
@@ -162,16 +157,26 @@ class Status extends Component {
 							printerState: "quit"
 						})
 						break;
+					case "finish":
+						this.setState({
+							printerState: "lock"
+						})
+						break;
 					case "error":		//error signal while printing and still not finish
 						this.setState({
 							printerState: "error"
 						})
 						break;
-					case "printError":	//error signal when print finish
+					case "errorFinish":	//error signal when print finish
+						this.setState({
+							printerState: "lock"
+						})
+						window.confirm("프린트 도중 문제가 발생하였습니다.")
+						break;
+					case "unlock":
 						this.setState({
 							printerState: "ready"
 						})
-						window.confirm("ERROR while printing")
 						break;
 					default:
 						break;
@@ -252,6 +257,13 @@ class Status extends Component {
 					<Button variant="contained" disabled>Error...</Button>
 				</div>	
 				mainStr = "Error... " +this.state.progress + "%" ;
+				break;
+			case "lock":
+				buttons =
+				<div className={styles["button-container"]} >
+					<Button variant="contained" disabled>Finished...</Button>
+				</div>
+				mainStr = "Finished... " +this.state.progress + "%" ;
 				break;
 			default:
 				mainStr = "Ready";

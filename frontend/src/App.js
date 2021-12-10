@@ -4,17 +4,30 @@ import { Home, Progress, Print } from './routes';
 import SideBarHeader from './components/SideBarHeader';
 import wsMan from './WsManager'
 class App extends Component {
-	
+	state = {
+		product: ''
+	}
+
 	constructor(props)
 	{
 		super(props);
-		this.state = {
-		}
 	}
 
 	componentDidMount(){
+		wsMan.getInstance().ws.addEventListener("message", (evt) => {
+			const message = JSON.parse(evt.data)
+			let args = message.arg
+			switch(message.method)
+			{
+				case "setProductName":
+					this.setState({
+						product:args
+					});
+					break;
+			}
+		});
 	}
-	
+
 	render() {
 		// if (wsMan.getInstance().ws === undefined || wsMan.getInstance().ws.readyState !== WebSocket.OPEN) {
         //     return <div />;
@@ -22,7 +35,7 @@ class App extends Component {
 		return (	
 			<div>
 				<Router>
-					<SideBarHeader>
+					<SideBarHeader product={this.state.product}>
 						<Switch>
 							{/* <Route exact path="/" component={Home} /> */}
 							<Route exact path="/">

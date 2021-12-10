@@ -22,6 +22,8 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 
 import { Link } from "react-router-dom";
 
+import wsMan from '../WsManager'
+
 const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
@@ -93,7 +95,25 @@ function SideBarHeader(props) {
 
   const container = window !== undefined ? () => window().document.body : undefined;
 
+  if (wsMan.getInstance().ws.readyState !== WebSocket.OPEN)
+  {
+    let afterConnection = () =>{
+      wsMan.getInstance().sendJson({
+        method: 'getProductName'
+      });
+      wsMan.getInstance().ws.removeEventListener("open",afterConnection);
+    };
+    wsMan.getInstance().ws.addEventListener("open",afterConnection);
+  }
+  else
+  {
+    wsMan.getInstance().sendJson({
+      method: 'getProductName'
+    });
+  }
+
   return (
+    
     <div className={classes.root}>
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
@@ -107,7 +127,7 @@ function SideBarHeader(props) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap>
-          	C-10	
+            {props.product}
           </Typography>
         </Toolbar>
       </AppBar>

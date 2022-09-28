@@ -109,7 +109,6 @@ class Print extends Component {
 				}
 				break;
 			case "printSettingError":
-				///print setting Error when received print start from UI
 				let text = ""
 				switch(args["code"]){
 					case 1:

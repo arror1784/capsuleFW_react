@@ -175,7 +175,7 @@ class Status extends Component {
 				break;
 			case "stop":
 				this.setState({
-					printerState: "lock"
+					printerState: "stop"
 				})
 				break;
 			case "stopWork":
@@ -189,9 +189,9 @@ class Status extends Component {
 				})
 				window.confirm(args["message"])
 				break;
-			case "unlock":
+			case "lock":
 				this.setState({
-					printerState: "stop"
+					printerState: "lock"
 				})
 				this.state.sw.reset()
 				break;

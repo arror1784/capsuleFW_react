@@ -103,7 +103,7 @@ class Print extends Component {
 					this.handleNext();
 				break;
 			case "changeState":
-				if(args !== "ready"){
+				if(args !== "unlock"){
 					this.handleBlockToggle(false)
 					this.props.history.push('/progress/')
 				}
@@ -111,7 +111,7 @@ class Print extends Component {
 			case "printSettingError":
 				///print setting Error when received print start from UI
 				let text = ""
-				switch(args){
+				switch(args["code"]){
 					case 1:
 						text = "Error: LCD가 빠졌습니다.\nLCD를 다시 넣고 재부팅해주세요."
 						break;
@@ -140,8 +140,8 @@ class Print extends Component {
 						text = "Error: 오류가 발생했습니다."
 						break;
 				}
-				console.log("print setting error code, ", text)
-				window.confirm(text)
+				console.log("print setting error code, ", args["message"])
+				window.confirm(args["message"])
 				this.props.history.push('/progress/')
 				// window.location.reload(false);
 				break;

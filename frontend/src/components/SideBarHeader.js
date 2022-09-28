@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -95,22 +95,29 @@ function SideBarHeader(props) {
 
   const container = window !== undefined ? () => window().document.body : undefined;
 
-  if (wsMan.getInstance().ws.readyState !== WebSocket.OPEN)
-  {
-    let afterConnection = () =>{
+  useEffect(() => {
+      
+    if (wsMan.getInstance().ws.readyState !== WebSocket.OPEN)
+    {
+      let afterConnection = () =>{
+        wsMan.getInstance().sendJson({
+          method: 'getProductName'
+        });
+        wsMan.getInstance().ws.removeEventListener("open",afterConnection);
+      };
+      wsMan.getInstance().ws.addEventListener("open",afterConnection);
+    }
+    else
+    {
       wsMan.getInstance().sendJson({
         method: 'getProductName'
       });
-      wsMan.getInstance().ws.removeEventListener("open",afterConnection);
-    };
-    wsMan.getInstance().ws.addEventListener("open",afterConnection);
-  }
-  else
-  {
-    wsMan.getInstance().sendJson({
-      method: 'getProductName'
-    });
-  }
+    }
+
+  
+    return () => {
+    }
+  }, [])
 
   return (
     

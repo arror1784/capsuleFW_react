@@ -19,6 +19,7 @@ function toStrTimeM(date)
 	else
 		return '0m 0s';
 }
+const Stopwatch = require("ts-stopwatch").Stopwatch;
 
 class Status extends Component {
 
@@ -32,12 +33,11 @@ class Status extends Component {
 		layerHeight: 0,
 		totalTime: 0,
 		intervalID: null,
-		intervalBlock: true,
 		progress: 0,
-		printerState: 'ready',
-		startTime: 0,
+		printerState: 'stop',
 		elapsedTime: 0,
-		time: 0
+		currentTime: 0,
+		sw: new Stopwatch(),
 	}
 	
 	componentDidMount(){
@@ -62,7 +62,7 @@ class Status extends Component {
 		this.setState({
 			startTime: date.getTime
 		})
-		var intervalId = setInterval(this.tick, 50);
+		var intervalId = setInterval(this.tick, 100);
 		this.setState({
 			intervalID: intervalId
 		})
@@ -74,14 +74,9 @@ class Status extends Component {
 	}
 	
 	tick = () => {
-		if(this.state.intervalBlock)
-			return
-		var date = new Date();
-		var currentDuration = date.getTime() - this.state.startTime + this.state.elapsedTime
-		var currentDate = new Date(currentDuration)
-
+		// console.log(this.state.sw.getTime() + this.state.elapsedTime)
 		this.setState({
-			time: currentDuration
+			currentTime: this.state.sw.getTime() + this.state.elapsedTime
 		})
 	}
 	handlePause = () => {
@@ -104,115 +99,105 @@ class Status extends Component {
 			arg: 'quit'
 		});
 	}
-	handleEnableTimer = (enabled) => {
-		if(enabled){
-			//only enable if not already enabled
-			var date = new Date()
-			this.setState({
-				startTime: date.getTime()
-			})
-			this.setState({
-				intervalBlock: false
-			})
-		}else{
-			this.setState({
-				intervalBlock: true,
-				elapsedTime: this.state.time
-			})
-		}
-	}
 	handleWs = (evt) => {
 		const message = JSON.parse(evt.data)
 		let args = message.arg;
 		switch(message.method)
 		{
 			case "changeState":
-				switch(args)
-				{
-					case "print":
-						this.setState({
-							printerState: "print",
-							totalTime: 0,
-							progress: 0,
-							time: 0
-						})
-						break;
-					case "pauseStart":
-						this.setState({
-							printerState: "pauseStart"
-						})
-						break;
-					case "pause":
-						this.setState({
-							printerState: "pause"
-						})
-						break;
-					case "resume":
-						this.setState({
-							printerState: "print"
-						})
-						break;
-					case "quit":
-						this.setState({
-							printerState: "quit"
-						})
-						break;
-					case "finish":
-						this.setState({
-							printerState: "lock"
-						})
-						break;
-					case "error":		//error signal while printing and still not finish
-						this.setState({
-							printerState: "error"
-						})
-						break;
-					case "errorFinish":	//error signal when print finish
-						this.setState({
-							printerState: "lock"
-						})
-						window.confirm("프린트 도중 문제가 발생하였습니다.")
-						break;
-					case "unlock":
-						this.setState({
-							printerState: "ready"
-						})
-						break;
-					default:
-						break;
-				}
+				this.handleState(args)
 				break;
 			case "printInfo":
-				var D = new Date()
 				this.setState({
-					printerState: args.state,
-                    material: args.material,
-                    fileName: args.fileName,
-                    layerHeight: args.layerHeight,
-					elapsedTime: args.elapsedTime,
-                    totalTime: args.totalTime,
-					progress: args.progress,
-					startTime : D.getTime
+					printerState: args[0],
+                    material: args[1],
+                    fileName: args[2],
+                    layerHeight: args[3],
+					elapsedTime: args[4],
+                    totalTime: args[5],
+					progress: Number((args[6]*100).toFixed()),
 				})
-				this.handleEnableTimer(args.enableTimer);
-
+				this.handleState({"state":args[0],"message":""})
 				break;
 			case "updateProgress":
 				this.setState({
-					progress: args
+					progress: Number((args*100).toFixed())
 				})
-				break;
-			case "enableTimer":
-				this.handleEnableTimer(args);
 				break;
 			case "setTotalTime":
 				this.setState({
 					totalTime: args
 				})
 				break;
+			case "start":
+
+				if (wsMan.getInstance().ws.readyState !== WebSocket.OPEN)
+				{
+					let afterConnection = () =>{
+						wsMan.getInstance().sendJson({
+							method: 'printInfo'
+						});
+						wsMan.getInstance().ws.removeEventListener("open",afterConnection);
+					};
+					wsMan.getInstance().ws.addEventListener("open",afterConnection);
+				}
+				else
+				{
+					wsMan.getInstance().sendJson({
+						method: 'printInfo'
+					});
+				}
+				break;
 			default:
 				break;
 		}			
+	}
+	handleState = (args) => {
+		switch(args["state"])
+		{
+			case "working":
+				this.state.sw.start()
+
+				this.setState({
+					printerState: "working",
+				})
+				break;
+			case "pauseWork":
+				this.setState({
+					printerState: "pauseWork"
+				})
+				break;
+			case "pause":
+				this.state.sw.stop()
+				this.setState({
+					printerState: "pause"
+				})
+				break;
+			case "stop":
+				this.setState({
+					printerState: "lock"
+				})
+				break;
+			case "stopWork":
+				this.setState({
+					printerState: "lock"
+				})
+				break;
+			case "error":		//error signal while printing and still not finish
+				this.setState({
+					printerState: "error"
+				})
+				window.confirm(args["message"])
+				break;
+			case "unlock":
+				this.setState({
+					printerState: "stop"
+				})
+				this.state.sw.reset()
+				break;
+			default:
+				break;
+		}
 	}
 
 
@@ -230,21 +215,21 @@ class Status extends Component {
 				mainStr = "Paused... " +this.state.progress + "%" ;
 
 				break;
-			case "pauseStart":
+			case "pauseWork":
 				buttons =
 				<div className={styles["button-container"]} >
 					<Button variant="contained" disabled>Pausing...</Button>
 				</div>	
 				mainStr = "Pausing... " +this.state.progress + "%" ;
 				break;
-			case "print":
+			case "working":
 				buttons =
 				<div className={styles["button-container"]} >
 					<Button variant="contained" onClick={this.handlePause} color="primary">Pause</Button>
 				</div>	
 				mainStr = "Printing... " +this.state.progress + "%" ;
 				break;
-			case "quit":
+			case "stopWork":
 				buttons =
 				<div className={styles["button-container"]} >
 					<Button variant="contained" disabled>Quit...</Button>
@@ -268,19 +253,20 @@ class Status extends Component {
 			default:
 				mainStr = "Ready";
 				
-		}
-		var Dtotal = new Date(this.state.totalTime)
-		var diffDuration = this.state.totalTime - this.state.time
+		}	
+		var Dtotal = new Date(this.state.totalTime)	    
+		let timeC = this.state.totalTime === 0 ? 0 : this.state.totalTime - this.state.currentTime
+		let time = timeC < 0 ? new Date(-timeC) : new Date(timeC)
+	
 		var Rtext= ""
-		if(diffDuration < 0){
-			var RTime = new Date(-diffDuration)
+		if(time < 0){
+			var RTime = new Date(-time)
 			Rtext = toStrTimeM(RTime)
 		}else{
-			var RTime = new Date(diffDuration)
+			var RTime = new Date(time)
 			Rtext = toStrTime(RTime)
 		}
 
-		
 		return (
 			<div className={styles["progress-container"]}>
 				<h1>{mainStr}</h1>
@@ -288,7 +274,7 @@ class Status extends Component {
 					<p>Model: {this.state.fileName}</p>
 					<p>Material: {this.state.material}</p>
 					<p>Layer height: {this.state.layerHeight}mm</p>
-					<p>Remaining Time: {Dtotal.getTime() === 0 ? "Calculating" : Rtext}</p>
+					<p>Remaining Time: {time.getTime() === 0 ? "Calculating" : Rtext}</p>
 					<p>Total printing time: {Dtotal.getTime() === 0 ? "Calculating" : toStrTime(Dtotal)}</p>
 				</div>
 				<ProgressBar value={this.state.progress}/>
